@@ -28,7 +28,7 @@ export class ResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next
       .handle()
-      .pipe(map((res: Response<any>) => this.responseHandler(res, context)));
+      .pipe(map((metadata: any) => this.responseHandler(metadata, context)));
   }
 
   /**
@@ -37,7 +37,7 @@ export class ResponseInterceptor implements NestInterceptor {
    * @param context The execution context containing request and response objects.
    * @returns A standardized response object.
    */
-  responseHandler<T>(res: Response<T>, context: ExecutionContext): Response<T> {
+  responseHandler<T>(metadata: T, context: ExecutionContext): Response<T> {
     const ctx = context.switchToHttp();
     const statusCode = ctx.getResponse().statusCode;
 
@@ -46,7 +46,7 @@ export class ResponseInterceptor implements NestInterceptor {
       message:
         Reflect.getMetadata('response_message', context.getHandler()) ||
         'Successfully',
-      metadata: res.metadata,
+      metadata: metadata,
     };
   }
 }
