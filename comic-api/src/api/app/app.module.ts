@@ -3,7 +3,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { redisStore } from 'cache-manager-redis-yet';
-import { UserModule } from '~/api/user/user.module';
+import { CategoryModule } from '../category/category.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -18,8 +19,14 @@ import { UserModule } from '~/api/user/user.module';
           },
         }),
     }),
-    MongooseModule.forRoot(process.env.MONGO_URI),
+    MongooseModule.forRoot(process.env.MONGO_URI, {
+      connectionFactory: (connection) => {
+        connection.plugin(require('mongoose-slug-updater'));
+        return connection;
+      },
+    }),
     UserModule,
+    CategoryModule,
   ],
   controllers: [],
   providers: [],
