@@ -3,11 +3,18 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { redisStore } from 'cache-manager-redis-yet';
-import { CategoryModule } from '../category/category.module';
-import { UserModule } from '../user/user.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+
+import { CategoryModule } from '~/api/category/category.module';
+import { UserModule } from '~/api/user/user.module';
+import { UploadModule } from '~/api/upload/upload.module';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: 'public/uploads',
+      serveRoot: '/uploads',
+    }),
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     CacheModule.register({
       isGlobal: true,
@@ -27,6 +34,7 @@ import { UserModule } from '../user/user.module';
     }),
     UserModule,
     CategoryModule,
+    UploadModule,
   ],
   controllers: [],
   providers: [],

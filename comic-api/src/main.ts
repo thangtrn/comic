@@ -1,24 +1,26 @@
 import { NestFactory } from '@nestjs/core';
 import * as cookieParser from 'cookie-parser';
+import * as compression from 'compression';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-import { AppModule } from './api/app/app.module';
-import { ResponseInterceptor } from './interceptors/response.interceptor';
+import { AppModule } from '~/api/app/app.module';
+import { ResponseInterceptor } from '~/interceptors/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Variable
   const appPort = process.env.APP_PORT || 5000;
-  const enviroment = process.env.NODE_ENV || 'development';
 
-  // Middleware
+  // Config
   app.setGlobalPrefix('/api');
   app.useGlobalInterceptors(new ResponseInterceptor());
-
-  app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
+
+  // Middleware
+  app.use(compression());
+  app.use(cookieParser());
 
   // Swagger
   const config = new DocumentBuilder()
@@ -39,10 +41,9 @@ async function bootstrap() {
 
   // Listening
   await app.listen(appPort, () => {
-    if (enviroment === 'development')
-      console.log(
-        `Application is running on: http://localhost:${appPort}/api-docs`,
-      );
+    console.log(
+      `🚀 ~ Application is running on: http://localhost:${appPort}/api-docs`,
+    );
   });
 }
 bootstrap();
