@@ -29,6 +29,7 @@ async function bootstrap() {
     .setVersion('1.0')
     // .addBearerAuth({ in: 'header', type: 'http' })
     .addTag('Category', 'Enpoints to manipulate Category data')
+    .addTag('Media', 'Enpoints to manipulate Media upload and delete')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document, {

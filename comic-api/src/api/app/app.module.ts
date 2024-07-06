@@ -7,13 +7,13 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 
 import { CategoryModule } from '~/api/category/category.module';
 import { UserModule } from '~/api/user/user.module';
-import { UploadModule } from '~/api/upload/upload.module';
+import { MediaModule } from '~/api/media/media.module';
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
       rootPath: 'public/uploads',
-      serveRoot: '/uploads',
+      serveRoot: '/media',
     }),
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     CacheModule.register({
@@ -34,7 +34,7 @@ import { UploadModule } from '~/api/upload/upload.module';
     }),
     UserModule,
     CategoryModule,
-    UploadModule,
+    MediaModule,
   ],
   controllers: [],
   providers: [],

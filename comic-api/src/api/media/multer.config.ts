@@ -1,14 +1,15 @@
 import { Request } from 'express';
+import { BadRequestException } from '@nestjs/common';
 import { basename, extname } from 'path';
 import { diskStorage, FileFilterCallback } from 'multer';
+import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import ShortUniqueId from 'short-unique-id';
-import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 
 const { randomUUID } = new ShortUniqueId({ length: 10 });
 
 const allowedFileExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.mp4', '.mp3'];
 
-export const multerOptions = {
+export const multerOptions: MulterOptions = {
   storage: diskStorage({
     destination: 'public/uploads',
     filename: (

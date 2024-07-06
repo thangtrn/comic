@@ -8,11 +8,12 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { CategoryService } from './category.service';
+import { Types } from 'mongoose';
 import { ApiTags } from '@nestjs/swagger';
+
+import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
-import { Types } from 'mongoose';
 
 @ApiTags('Category')
 @Controller('/category')
