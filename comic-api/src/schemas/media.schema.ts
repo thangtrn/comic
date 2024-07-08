@@ -24,7 +24,7 @@ export class Media {
   size: number;
 
   @Prop({ type: Types.ObjectId, ref: 'Folder', default: null })
-  parentFolder?: Folder | string;
+  parentFolder?: Folder | string | Types.ObjectId;
 }
 
 export const MediaSchema = SchemaFactory.createForClass(Media);

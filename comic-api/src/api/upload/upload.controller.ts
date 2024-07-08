@@ -8,6 +8,7 @@ import {
   UseInterceptors,
   BadRequestException,
   Put,
+  Query,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
@@ -20,18 +21,21 @@ import { UpdateFolderDto } from './dtos/update-folder.dto';
 import { DeleteFolderDto } from './dtos/delete-folder.dto';
 import { CreateFileDto } from './dtos/create-file.dto';
 import { UpdateFileDto } from './dtos/update-file.dto';
+import { QueryAssetsDto } from './dtos/query-assets.dto';
 
 @ApiTags('Upload')
 @Controller('/upload')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
-  // file handdler
-  @Get('/')
-  async getAll() {
-    return await this.uploadService.getAllFiles();
+  @Get('/assets')
+  async getFilesAndFoldersByParentFolder(@Query() query?: QueryAssetsDto) {
+    return await this.uploadService.getFilesAndFoldersByParentFolderId(
+      query.parent,
+    );
   }
 
+  // file handdler
   @Post('/files')
   @ApiConsumes('multipart/form-data')
   @ApiBody({

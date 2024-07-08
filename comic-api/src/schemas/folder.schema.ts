@@ -11,7 +11,7 @@ export class Folder {
   folderName: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Folder', default: null })
-  parentFolder: Folder;
+  parentFolder?: Folder | string | Types.ObjectId;
 
   // @Prop({ type: String })
   // path: string;

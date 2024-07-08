@@ -10,6 +10,7 @@ import { CreateFolderDto } from './dtos/create-folder.dto';
 import { UpdateFolderDto } from './dtos/update-folder.dto';
 import { CreateFileDto } from './dtos/create-file.dto';
 import { UpdateFileDto } from './dtos/update-file.dto';
+import removeNullUndefinedFields from '~/utils/removeNullUndefinedFields';
 
 @Injectable()
 export class UploadService {
@@ -19,8 +20,50 @@ export class UploadService {
   ) {}
 
   // file handler
-  async getAllFiles() {
-    return await this.mediaModel.find();
+  async getFilesAndFoldersByParentFolderId(parentFolderId: Types.ObjectId) {
+    return await this.folderModel.aggregate([
+      {
+        $match: {
+          parentFolder: parentFolderId,
+        },
+      },
+      {
+        $group: {
+          _id: '$parentFolder',
+          folders: {
+            $push: '$$ROOT',
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: 'media',
+          localField: '_id',
+          foreignField: 'parentFolder',
+          as: 'files',
+        },
+      },
+      {
+        $graphLookup: {
+          from: 'folders',
+          startWith: '$_id',
+          connectFromField: 'parentFolder',
+          connectToField: '_id',
+          as: 'breadcrumb',
+          maxDepth: 10,
+          depthField: 'level',
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          parentFolder: '$_id',
+          breadcrumb: '$breadcrumb',
+          folders: '$folders',
+          files: '$files',
+        },
+      },
+    ]);
   }
 
   async uploadFiles(files: Array<Express.Multer.File>, fileDto: CreateFileDto) {
@@ -91,10 +134,11 @@ export class UploadService {
 
   async updateFolder(folder: UpdateFolderDto) {
     const { _id, ...folderWithoutId } = folder;
+
     const docs = await this.folderModel.findByIdAndUpdate(
       _id,
       {
-        $set: folderWithoutId,
+        $set: removeNullUndefinedFields(folderWithoutId),
       },
       { new: true },
     );

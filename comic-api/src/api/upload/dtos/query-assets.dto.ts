@@ -3,7 +3,7 @@ import { Transform } from 'class-transformer';
 import { IsOptional, ValidateIf } from 'class-validator';
 import { Types } from 'mongoose';
 
-export class CreateFileDto {
+export class QueryAssetsDto {
   @ApiProperty({
     type: String,
     example: 'string',
@@ -15,5 +15,5 @@ export class CreateFileDto {
   @Transform(({ value }) =>
     !value ? null : new Types.ObjectId(value as string),
   )
-  parentFolder?: Types.ObjectId | string | null;
+  parent: Types.ObjectId | null;
 }
