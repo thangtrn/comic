@@ -7,7 +7,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 
 import { CategoryModule } from '~/api/category/category.module';
 import { UserModule } from '~/api/user/user.module';
-import { MediaModule } from '~/api/media/media.module';
+import { UploadModule } from '~/api/upload/upload.module';
 
 @Module({
   imports: [
@@ -34,7 +34,7 @@ import { MediaModule } from '~/api/media/media.module';
     }),
     UserModule,
     CategoryModule,
-    MediaModule,
+    UploadModule,
   ],
   controllers: [],
   providers: [],

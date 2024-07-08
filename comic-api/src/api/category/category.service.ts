@@ -25,7 +25,7 @@ export class CategoryService {
     const categoryUpdated = await this.categoryModel.findByIdAndUpdate(
       _id,
       {
-        ...categoryWithoutId,
+        $set: categoryWithoutId,
       },
       { new: true },
     );

@@ -4,7 +4,7 @@ import State from '~/shared/enums/state.enum';
 
 export class CreateCategoryDto {
   @ApiProperty({
-    default: 'Hài kịch',
+    default: 'Category name',
   })
   @IsString()
   @IsNotEmpty()

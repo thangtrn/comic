@@ -28,8 +28,8 @@ async function bootstrap() {
     .setDescription('Api service for commic web and mobile.')
     .setVersion('1.0')
     // .addBearerAuth({ in: 'header', type: 'http' })
-    .addTag('Category', 'Enpoints to manipulate Category data')
-    .addTag('Media', 'Enpoints to manipulate Media upload and delete')
+    .addTag('Category', 'Enpoints to manipulate category data')
+    .addTag('Upload', 'Enpoints to manipulate files and folder action')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document, {

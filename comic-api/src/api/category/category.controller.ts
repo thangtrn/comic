@@ -36,7 +36,7 @@ export class CategoryController {
   }
 
   @Delete('/:_id')
-  async delete(@Param('_id') _id: string) {
+  async delete(@Param('_id') _id: Types.ObjectId) {
     if (!Types.ObjectId.isValid(_id)) {
       throw new BadRequestException('Type of _id is invalid.');
     }

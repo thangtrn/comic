@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, ObjectId, Types } from 'mongoose';
+import { Folder } from './folder.schema';
 
 export type MediaDocument = HydratedDocument<Media>;
 
@@ -14,9 +15,6 @@ export class Media {
   fileName: string;
 
   @Prop({ type: String, required: true })
-  format: string;
-
-  @Prop({ type: String, required: true })
   mimeType: string;
 
   @Prop({ type: String, required: true })
@@ -24,6 +22,9 @@ export class Media {
 
   @Prop({ type: Number, required: true })
   size: number;
+
+  @Prop({ type: Types.ObjectId, ref: 'Folder', default: null })
+  parentFolder?: Folder | string;
 }
 
 export const MediaSchema = SchemaFactory.createForClass(Media);
