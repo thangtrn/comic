@@ -58,7 +58,7 @@ export class UploadService {
         $project: {
           _id: 0,
           parentFolder: '$_id',
-          breadcrumb: '$breadcrumb',
+          breadcrumb: { $reverseArray: '$breadcrumb' },
           folders: '$folders',
           files: '$files',
         },
