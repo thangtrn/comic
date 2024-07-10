@@ -8,6 +8,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { CategoryModule } from '~/api/category/category.module';
 import { UserModule } from '~/api/user/user.module';
 import { UploadModule } from '~/api/upload/upload.module';
+import MongooseSlugUpdater = require('mongoose-slug-updater');
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { UploadModule } from '~/api/upload/upload.module';
     }),
     MongooseModule.forRoot(process.env.MONGO_URI, {
       connectionFactory: (connection) => {
-        connection.plugin(require('mongoose-slug-updater'));
+        connection.plugin(MongooseSlugUpdater);
         return connection;
       },
     }),

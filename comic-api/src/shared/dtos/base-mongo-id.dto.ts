@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ArrayMinSize, IsMongoId, IsNotEmpty } from 'class-validator';
-import { ObjectId } from 'mongoose';
 
 export class SingleIdDto {
   @ApiProperty({

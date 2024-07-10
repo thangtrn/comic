@@ -6,7 +6,7 @@ const removeNullUndefinedFields = (object: Record<string, any>) => {
 
   const newObj = {};
 
-  for (let key in object) {
+  for (const key in object) {
     if (Types.ObjectId.isValid(object[key])) {
       newObj[key] = object[key];
     } else if (object[key] !== null && object[key] !== undefined) {

@@ -67,7 +67,7 @@ export class UploadService {
   }
 
   async uploadFiles(files: Array<Express.Multer.File>, fileDto: CreateFileDto) {
-    const filesUploader: Media[] = files.map((file: Express.Multer.File) => ({
+    const filesUploader = files.map((file: Express.Multer.File) => ({
       originalName: file.originalname,
       fileName: file.filename,
       mimeType: file.mimetype,
@@ -102,7 +102,7 @@ export class UploadService {
   }
 
   async deleteFiles(_ids: string[]) {
-    const docs: Media[] = await this.mediaModel.find({
+    const docs = await this.mediaModel.find({
       _id: { $in: _ids },
     });
 
