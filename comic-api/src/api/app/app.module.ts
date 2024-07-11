@@ -4,11 +4,12 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { redisStore } from 'cache-manager-redis-yet';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import MongooseSlugUpdater = require('mongoose-slug-updater');
 
 import { CategoryModule } from '~/api/category/category.module';
 import { UserModule } from '~/api/user/user.module';
 import { UploadModule } from '~/api/upload/upload.module';
-import MongooseSlugUpdater = require('mongoose-slug-updater');
+import { ComicModule } from '~/api/comic/comic.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import MongooseSlugUpdater = require('mongoose-slug-updater');
     UserModule,
     CategoryModule,
     UploadModule,
+    ComicModule,
   ],
   controllers: [],
   providers: [],

@@ -22,26 +22,26 @@ export class CategoryService {
 
   async update(category: UpdateCategoryDto) {
     const { _id, ...categoryWithoutId } = category;
-    const categoryUpdated = await this.categoryModel.findByIdAndUpdate(
+    const doc = await this.categoryModel.findByIdAndUpdate(
       _id,
       {
         $set: categoryWithoutId,
       },
       { new: true },
     );
-    if (!categoryUpdated) {
+    if (!doc) {
       throw new NotFoundException('Not found category with _id = ' + _id);
     }
-    return categoryUpdated;
+    return doc;
   }
 
   async delete(_id: Types.ObjectId) {
-    const categoryDeleted = await this.categoryModel.findByIdAndDelete(_id);
+    const doc = await this.categoryModel.findByIdAndDelete(_id);
 
-    if (!categoryDeleted) {
+    if (!doc) {
       throw new NotFoundException('Not found category with _id = ' + _id);
     }
 
-    return categoryDeleted;
+    return doc;
   }
 }

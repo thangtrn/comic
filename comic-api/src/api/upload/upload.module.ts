@@ -13,7 +13,7 @@ import { Folder, FolderSchema } from '~/schemas/folder.schema';
       { name: Folder.name, schema: FolderSchema },
     ]),
   ],
-  providers: [UploadService],
   controllers: [UploadController],
+  providers: [UploadService],
 })
 export class UploadModule {}

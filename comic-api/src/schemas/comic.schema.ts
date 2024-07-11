@@ -15,11 +15,17 @@ export class Comic {
   @Prop({ type: String, required: true })
   name: string;
 
-  @Prop({ type: String, required: true })
-  introduce: string;
+  @Prop({ type: [String] })
+  origin_name?: string[];
+
+  @Prop({ type: String })
+  introduce?: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Media' })
   thumbnail: Media | Types.ObjectId;
+
+  @Prop({ type: Number, default: 0 })
+  view: number;
 
   @Prop({ type: String, enum: State, default: State.Draft })
   state: State;
