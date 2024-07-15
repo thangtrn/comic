@@ -6,14 +6,14 @@
 
    ```
    #FOR COMMON APP
-   APP_PORT = 5000
+   APP_PORT =
 
    # FOR DB
-   MONGO_URI = mongodb://localhost:27018/comic
+   MONGO_URI =
 
    # FOR REDIS
-   REDIS_HOST = localhost
-   REDIS_PORT = 6310
+   REDIS_HOST = l
+   REDIS_PORT =
    ```
 
 ## Commands:

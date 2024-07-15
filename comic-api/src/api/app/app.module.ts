@@ -10,6 +10,7 @@ import { CategoryModule } from '~/api/category/category.module';
 import { UserModule } from '~/api/user/user.module';
 import { UploadModule } from '~/api/upload/upload.module';
 import { ComicModule } from '~/api/comic/comic.module';
+import { AuthorModule } from '~/api/author/author.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ComicModule } from '~/api/comic/comic.module';
     UserModule,
     CategoryModule,
     UploadModule,
+    AuthorModule,
     ComicModule,
   ],
   controllers: [],
