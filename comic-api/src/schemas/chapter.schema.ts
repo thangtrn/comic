@@ -31,7 +31,7 @@ export class Chapter {
   @Prop({ type: String })
   content?: string;
 
-  @Prop({ type: [Types.ObjectId], ref: 'Media' })
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Media' }] })
   images: Media[] | Types.ObjectId[];
 }
 

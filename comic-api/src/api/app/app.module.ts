@@ -11,6 +11,7 @@ import { UserModule } from '~/api/user/user.module';
 import { UploadModule } from '~/api/upload/upload.module';
 import { ComicModule } from '~/api/comic/comic.module';
 import { AuthorModule } from '~/api/author/author.module';
+import { ChapterModule } from '~/api/chapter/chapter.module';
 
 @Module({
   imports: [
@@ -37,9 +38,10 @@ import { AuthorModule } from '~/api/author/author.module';
     }),
     UserModule,
     CategoryModule,
-    UploadModule,
     AuthorModule,
     ComicModule,
+    ChapterModule,
+    UploadModule,
   ],
   controllers: [],
   providers: [],

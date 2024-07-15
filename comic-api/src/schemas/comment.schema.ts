@@ -12,7 +12,7 @@ export class Comment {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   user: User | Types.ObjectId;
 
-  @Prop({ type: [Types.ObjectId], ref: 'User' })
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }] })
   likes: User[] | Types.ObjectId[];
 
   @Prop({ type: String, ref: 'Comic' })

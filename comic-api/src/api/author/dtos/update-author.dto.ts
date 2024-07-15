@@ -6,11 +6,4 @@ export class UpdateAuthorDto extends PartialType(CreateAuthorDto) {
   @IsMongoId()
   @IsNotEmpty()
   _id: string;
-
-  @ApiProperty({
-    default: 'Đang cập nhật',
-  })
-  @IsString()
-  @IsNotEmpty()
-  name: string;
 }

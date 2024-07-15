@@ -28,8 +28,10 @@ async function bootstrap() {
     .setDescription('Api service for commic web and mobile.')
     .setVersion('1.0')
     // .addBearerAuth({ in: 'header', type: 'http' })
-    .addTag('Author', 'Enpoints to manipulate author data')
     .addTag('Category', 'Enpoints to manipulate category data')
+    .addTag('Author', 'Enpoints to manipulate author data')
+    .addTag('Comic', 'Enpoints to manipulate comic data')
+    .addTag('Chapter', 'Enpoints to manipulate chapter data')
     .addTag('Upload', 'Enpoints to manipulate files and folder action')
     .build();
   const document = SwaggerModule.createDocument(app, config);

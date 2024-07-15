@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, ObjectId, Types } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import State from '~/shared/enums/state.enum';
 import { Media } from './media.schema';
 import Status from '~/shared/enums/status.enum';
@@ -16,13 +16,13 @@ export class Comic {
   name: string;
 
   @Prop({ type: [String] })
-  origin_name?: string[];
+  originName?: string[];
 
   @Prop({ type: String })
   introduce?: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Media' })
-  thumbnail: Media | Types.ObjectId;
+  thumbnail?: Media | Types.ObjectId;
 
   @Prop({ type: Number, default: 0 })
   view: number;
@@ -39,13 +39,19 @@ export class Comic {
   })
   slug: string;
 
-  @Prop({ type: [Types.ObjectId], ref: 'Category' })
-  categories: Category[] | Types.ObjectId[];
-
-  @Prop({ type: Number, enum: State, default: Status.Process })
+  @Prop({ type: Number, enum: Status, default: Status.Process })
   status: Status;
 
-  @Prop({ type: [Types.ObjectId], ref: 'Author' })
+  @Prop({
+    type: [{ type: Types.ObjectId, ref: 'Category' }],
+    default: [],
+  })
+  categories: Category[] | Types.ObjectId[];
+
+  @Prop({
+    type: [{ type: Types.ObjectId, ref: 'Author' }],
+    default: [],
+  })
   authors: Author[] | Types.ObjectId[];
 }
 

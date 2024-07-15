@@ -1,0 +1,14 @@
+{
+   "version": "0.2.0",
+   "configurations": [
+      {
+         // for Nest Api
+         "type": "node",
+         "request": "launch",
+         "name": "Debug Nest Api",
+         "cwd": "${workspaceFolder}/comic-api",
+         "runtimeExecutable": "yarn",
+         "runtimeArgs": ["start:dev"]
+      }
+   ]
+}

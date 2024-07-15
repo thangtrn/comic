@@ -1,6 +1,6 @@
 enum Status {
-  Process = 1,
-  Done = 2,
+  Process = 0,
+  Done = 1,
 }
 
 export default Status;
