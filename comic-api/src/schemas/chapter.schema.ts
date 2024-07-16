@@ -19,17 +19,13 @@ export class Chapter {
   @Prop({
     type: String,
     slug: 'name',
-    unique: true,
-    slugPaddingSize: true,
+    unique: false,
     index: true,
   })
   slug: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Comic' })
   comic: Comic | Types.ObjectId;
-
-  @Prop({ type: String })
-  content?: string;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Media' }] })
   images: Media[] | Types.ObjectId[];

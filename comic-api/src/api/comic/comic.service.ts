@@ -10,7 +10,9 @@ import removeNullUndefinedFields from '~/utils/removeNullUndefinedFields';
 export class ComicService {
   constructor(@InjectModel(Comic.name) private comicModel: Model<Comic>) {}
 
-  async getByQuery() {}
+  async getByQuery() {
+    return await this.comicModel.find();
+  }
 
   async getBySlug(slug: string) {
     const docs = await this.comicModel.aggregate([
@@ -45,6 +47,30 @@ export class ComicService {
       },
       {
         $unwind: '$thumbnail',
+      },
+      {
+        $lookup: {
+          from: 'chapters',
+          let: {
+            comicId: '$_id',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$$comicId', '$comic'],
+                },
+              },
+            },
+
+            {
+              $sort: {
+                createdAt: -1,
+              },
+            },
+          ],
+          as: 'chapters',
+        },
       },
     ]);
     return docs;

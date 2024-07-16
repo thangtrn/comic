@@ -6,6 +6,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from '~/api/app/app.module';
 import { ResponseInterceptor } from '~/interceptors/response.interceptor';
+import { MongoExceptionFilter } from './interceptors/mongo-exception';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,6 +16,7 @@ async function bootstrap() {
 
   // Config
   app.setGlobalPrefix('/api');
+  app.useGlobalFilters(new MongoExceptionFilter());
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 

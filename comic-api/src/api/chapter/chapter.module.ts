@@ -10,5 +10,6 @@ import { Chapter, ChapterSchema } from '~/schemas/chapter.schema';
   ],
   providers: [ChapterService],
   controllers: [ChapterController],
+  exports: [ChapterService],
 })
 export class ChapterModule {}

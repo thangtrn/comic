@@ -54,7 +54,7 @@ export class CreateComicDto {
   })
   @IsOptional()
   @Transform(({ value }) =>
-    value.map((item) => new Types.ObjectId(item as string)),
+    value.map((item: string) => new Types.ObjectId(item as string)),
   )
   authors?: string[] | Types.ObjectId[];
 
@@ -63,7 +63,7 @@ export class CreateComicDto {
   })
   @IsOptional()
   @Transform(({ value }) =>
-    value.map((item) => new Types.ObjectId(item as string)),
+    value.map((item: string) => new Types.ObjectId(item as string)),
   )
   categories?: string[] | Types.ObjectId[];
 }
