@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+
 import { ComicService } from './comic.service';
 import { ComicController } from './comic.controller';
-import { MongooseModule } from '@nestjs/mongoose';
 import { Comic, ComicSchema } from '~/schemas/comic.schema';
 import { ChapterModule } from '~/api/chapter/chapter.module';
 

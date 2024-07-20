@@ -6,14 +6,17 @@
 
    ```
    #FOR COMMON APP
-   APP_PORT =
+    APP_PORT =
 
-   # FOR DB
-   MONGO_URI =
+    # FOR DB
+    MONGO_URI =
 
-   # FOR REDIS
-   REDIS_HOST = l
-   REDIS_PORT =
+    # FOR REDIS
+    REDIS_HOST =
+    REDIS_PORT =
+
+    # FOR JWT
+    JWT_SECRET =
    ```
 
 ## Commands:
