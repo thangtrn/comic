@@ -29,17 +29,14 @@ async function bootstrap() {
     .setTitle('Comic Api')
     .setDescription('Api service for commic web and mobile.')
     .setVersion('1.0')
-    .addBearerAuth(
-      {
-        description: `[just text field] Please enter token in following format: Bearer <JWT>`,
-        name: 'Authorization',
-        bearerFormat: 'Bearer',
-        scheme: 'Bearer',
-        type: 'http',
-        in: 'Header',
-      },
-      'access-token', // This name here is important for matching up with @ApiBearerAuth() in your controller!
-    )
+    .addBearerAuth({
+      description: `[just text field] Please enter token in following format: Bearer <JWT>`,
+      name: 'Authorization',
+      bearerFormat: 'Bearer',
+      scheme: 'Bearer',
+      type: 'http',
+      in: 'Header',
+    })
     .addTag('Category', 'Enpoints to manipulate category data')
     .addTag('Author', 'Enpoints to manipulate author data')
     .addTag('Comic', 'Enpoints to manipulate comic data')

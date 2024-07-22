@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dtos/register.dto';
 import LocalAuthGuard from './guards/local.guard';
 import JwtAuthGuard from './guards/jwt.guard';
+import JwtRefreshAuthGuard from './guards/jwt-refresh.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -39,12 +40,18 @@ export class AuthController {
     return this.authService.register(user);
   }
 
+  @Get('/refresh-token')
+  @ApiBearerAuth()
+  @UseGuards(JwtRefreshAuthGuard)
+  async refresh(@Req() req: Request) {
+    const user: any = req.user;
+    return await this.authService.generateAccessToken(user?._id);
+  }
+
   @Get('/private')
-  @ApiBearerAuth('access-token')
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async private(@Req() req: Request) {
-    console.log('🚀 ~ AuthController ~ private ~ req:', req.user);
-
-    return 'private';
+    return req.user;
   }
 }

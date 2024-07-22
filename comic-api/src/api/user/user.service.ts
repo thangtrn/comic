@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User } from '~/schemas/user.schema';
 import { RegisterDto } from '~/api/auth/dtos/register.dto';
 
@@ -14,5 +14,9 @@ export class UserService {
 
   async register(user: RegisterDto) {
     return await this.userModel.create(user);
+  }
+
+  async findUserById(_id: Types.ObjectId | string) {
+    return await this.userModel.findById(_id);
   }
 }

@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bycrypt from 'bcrypt';
@@ -11,6 +12,7 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private readonly userService: UserService,
+    private configService: ConfigService,
   ) {}
 
   private async hashPassword(password: string) {
@@ -21,14 +23,18 @@ export class AuthService {
     return await bycrypt.compare(password, hashPassword);
   }
 
-  private generateToken(payload: any, expiresIn: number = 10 * 60 * 1000) {
-    try {
-      return this.jwtService.sign(payload, {
-        expiresIn: expiresIn,
-      });
-    } catch (error) {
-      console.log('🚀 ~ AuthService ~ generateToken ~ error:', error);
-    }
+  private async createToken(payload: any) {
+    return await this.jwtService.signAsync(payload, {
+      secret: this.configService.get<string>('JWT_SECRECT'),
+      expiresIn: '30s',
+    });
+  }
+
+  private async createRefresToken(payload: any) {
+    return await this.jwtService.signAsync(payload, {
+      secret: this.configService.get<string>('JWT_REFRESH'),
+      expiresIn: '10m',
+    });
   }
 
   async validateUser(email: string, password: string) {
@@ -42,18 +48,23 @@ export class AuthService {
   }
 
   async login(user: UserDocument) {
-    const payload = {
+    const payload: Express.User = {
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
     };
 
+    const [accessToken, refeshToken] = await Promise.all([
+      this.createToken(payload),
+      this.createRefresToken(payload),
+    ]);
+
     return {
       user: user,
       token: {
-        accessToken: this.generateToken(payload),
-        resfreshToken: this.generateToken(payload, 30 * 60 * 1000),
+        accessToken,
+        refeshToken,
       },
     };
   }
@@ -67,5 +78,17 @@ export class AuthService {
       ...user,
       password: await this.hashPassword(user.password),
     });
+  }
+
+  async generateAccessToken(userId: string) {
+    const user = await this.userService.findUserById(userId);
+    const payload: Express.User = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
+
+    return await this.createToken(payload);
   }
 }

@@ -16,7 +16,9 @@
     REDIS_PORT =
 
     # FOR JWT
-    JWT_SECRET =
+    JWT_ACCESS =
+
+    JWT_REFRESH =
    ```
 
 ## Commands:
