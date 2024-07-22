@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bycrypt from 'bcrypt';
 
@@ -17,27 +13,32 @@ export class AuthService {
     private readonly userService: UserService,
   ) {}
 
-  async hashPassword(password: string) {
+  private async hashPassword(password: string) {
     return await bycrypt.hash(password, 12);
   }
 
-  async comparePassword(password: string, hashPassword: string) {
+  private async comparePassword(password: string, hashPassword: string) {
     return await bycrypt.compare(password, hashPassword);
   }
 
-  async generateToken(payload: any, expiresIn: number = 5 * 60 * 1000) {
-    return await this.jwtService.signAsync(payload, {
-      expiresIn: expiresIn,
-    });
+  private generateToken(payload: any, expiresIn: number = 10 * 60 * 1000) {
+    try {
+      return this.jwtService.sign(payload, {
+        expiresIn: expiresIn,
+      });
+    } catch (error) {
+      console.log('🚀 ~ AuthService ~ generateToken ~ error:', error);
+    }
   }
 
   async validateUser(email: string, password: string) {
     const user = await this.userService.findUserByEmail(email);
-    if (user && (await this.comparePassword(password, user.password))) {
-      const { password, ...result } = user;
+    const isMatched = await this.comparePassword(password, user.password);
+    if (user && isMatched) {
+      const { password, ...result } = user.toJSON();
       return result;
     }
-    throw new ForbiddenException('Email or password is incorrect.');
+    return null;
   }
 
   async login(user: UserDocument) {
@@ -48,14 +49,11 @@ export class AuthService {
       role: user.role,
     };
 
-    const accessToken = await this.generateToken(payload);
-    const resfreshToken = await this.generateToken(payload, 10 * 60 * 1000);
-
     return {
       user: user,
       token: {
-        accessToken,
-        resfreshToken,
+        accessToken: this.generateToken(payload),
+        resfreshToken: this.generateToken(payload, 30 * 60 * 1000),
       },
     };
   }
@@ -65,7 +63,7 @@ export class AuthService {
     if (isExists) {
       throw new ConflictException('Email already exists');
     }
-    return await this.userService.create({
+    return await this.userService.register({
       ...user,
       password: await this.hashPassword(user.password),
     });

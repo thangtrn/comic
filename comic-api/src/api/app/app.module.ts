@@ -37,8 +37,8 @@ import { ChapterModule } from '~/api/chapter/chapter.module';
         return connection;
       },
     }),
-    UserModule,
     AuthModule,
+    UserModule,
     CategoryModule,
     AuthorModule,
     ComicModule,

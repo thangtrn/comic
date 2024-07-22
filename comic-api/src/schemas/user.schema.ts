@@ -15,7 +15,7 @@ export class User {
   @Prop({ type: String, unique: true, sparse: true })
   email: string;
 
-  @Prop({ type: String, minlength: 6, maxlength: 30 })
+  @Prop({ type: String, minlength: 6 })
   password: string;
 
   @Prop({})

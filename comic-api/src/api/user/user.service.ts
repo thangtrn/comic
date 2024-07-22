@@ -12,7 +12,7 @@ export class UserService {
     return await this.userModel.findOne({ email: email });
   }
 
-  async create(user: RegisterDto) {
+  async register(user: RegisterDto) {
     return await this.userModel.create(user);
   }
 }
