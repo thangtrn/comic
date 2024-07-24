@@ -12,11 +12,11 @@ import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule.register({ defaultStrategy: 'jwt' }), // select default validate jwt
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_ACCESS'),
+        secret: configService.get<string>('JWT_ACCESS'), // using secret key for access token
       }),
       inject: [ConfigService],
     }),

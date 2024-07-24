@@ -7,9 +7,15 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { Types } from 'mongoose';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+import { Roles } from '~/shared/decorators/roles';
+import { Public } from '~/shared/decorators/public';
+import Role from '~/shared/enums/role.enum';
+import JwtAuthGuard from '~/api/auth/guards/jwt.guard';
 
 import { AuthorService } from './author.service';
 import { CreateAuthorDto } from './dtos/create-author.dto';
@@ -17,10 +23,14 @@ import { UpdateAuthorDto } from './dtos/update-author.dto';
 
 @ApiTags('Author')
 @Controller('author')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Roles(Role.Admin)
 export class AuthorController {
   constructor(private readonly authorService: AuthorService) {}
 
   @Get('/')
+  @Public()
   async getAll() {
     return await this.authorService.getAll();
   }

@@ -7,9 +7,15 @@ import {
   Param,
   Controller,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { Types } from 'mongoose';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+import { Roles } from '~/shared/decorators/roles';
+import { Public } from '~/shared/decorators/public';
+import Role from '~/shared/enums/role.enum';
+import JwtAuthGuard from '~/api/auth/guards/jwt.guard';
 
 import { ComicService } from './comic.service';
 import { CreateComicDto } from './dtos/create-comic.dtos';
@@ -18,22 +24,28 @@ import { ChapterService } from '../chapter/chapter.service';
 
 @ApiTags('Comic')
 @Controller('comic')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Roles(Role.Admin)
 export class ComicController {
   constructor(
     private readonly comicService: ComicService,
     private readonly chapterService: ChapterService,
   ) {}
   @Get('/')
+  @Public()
   async getByQuery() {
     return this.comicService.getByQuery();
   }
 
   @Get('/:slug')
+  @Public()
   async getBySlug(@Param('slug') slug: string) {
     return await this.comicService.getBySlug(slug);
   }
 
   @Get('/:comicSlug/chapter/:chapterSlug')
+  @Public()
   async getChapterBySlug(
     @Param('comicSlug') comicSlug: string,
     @Param('chapterSlug') chapterSlug: string,

@@ -7,19 +7,30 @@ import {
   Controller,
   BadRequestException,
   Body,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { ChapterService } from './chapter.service';
 import { Types } from 'mongoose';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+import { Roles } from '~/shared/decorators/roles';
+import { Public } from '~/shared/decorators/public';
+import Role from '~/shared/enums/role.enum';
+import JwtAuthGuard from '~/api/auth/guards/jwt.guard';
+
+import { ChapterService } from './chapter.service';
 import { CreateChapterDto } from './dtos/create-chapter.dto';
 import { UpdateChapterDto } from './dtos/update-chapter.dto';
 
 @ApiTags('Chapter')
 @Controller('chapter')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Roles(Role.Admin)
 export class ChapterController {
   constructor(private readonly chapterService: ChapterService) {}
 
   @Get('/')
+  @Public()
   async getAll() {
     return await this.chapterService.getAll();
   }

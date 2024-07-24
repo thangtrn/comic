@@ -6,6 +6,7 @@ import * as bycrypt from 'bcrypt';
 import { UserService } from '~/api/user/user.service';
 import { UserDocument } from '~/schemas/user.schema';
 import { RegisterDto } from './dtos/register.dto';
+import { JwtPayload } from '~/shared/types/jwt-payload.type';
 
 @Injectable()
 export class AuthService {
@@ -26,33 +27,35 @@ export class AuthService {
   private async createToken(payload: any) {
     return await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_SECRECT'),
-      expiresIn: '30s',
+      expiresIn: '7d',
     });
   }
 
   private async createRefresToken(payload: any) {
     return await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_REFRESH'),
-      expiresIn: '10m',
+      expiresIn: '90d',
     });
   }
 
-  async validateUser(email: string, password: string) {
+  async validateUser(email: string, password: string): Promise<any | null> {
     const user = await this.userService.findUserByEmail(email);
-    const isMatched = await this.comparePassword(password, user.password);
-    if (user && isMatched) {
-      const { password, ...result } = user.toJSON();
-      return result;
+    if (!user) {
+      return null;
     }
-    return null;
+
+    const isMatched = await this.comparePassword(password, user.password);
+    if (!isMatched) {
+      return null;
+    }
+
+    const { password: _, ...result } = user.toJSON();
+    return result;
   }
 
   async login(user: UserDocument) {
-    const payload: Express.User = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
+    const payload: JwtPayload = {
+      userId: user._id,
     };
 
     const [accessToken, refeshToken] = await Promise.all([
@@ -81,12 +84,8 @@ export class AuthService {
   }
 
   async generateAccessToken(userId: string) {
-    const user = await this.userService.findUserById(userId);
-    const payload: Express.User = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
+    const payload: JwtPayload = {
+      userId: userId,
     };
 
     return await this.createToken(payload);

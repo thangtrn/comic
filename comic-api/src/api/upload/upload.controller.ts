@@ -9,9 +9,15 @@ import {
   BadRequestException,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+
+import { Roles } from '~/shared/decorators/roles';
+import { Public } from '~/shared/decorators/public';
+import Role from '~/shared/enums/role.enum';
+import JwtAuthGuard from '~/api/auth/guards/jwt.guard';
 
 import { multerOptions } from '~/api/upload/multer.config';
 import { UploadService } from './upload.service';
@@ -25,6 +31,9 @@ import { QueryAssetsDto } from './dtos/query-assets.dto';
 
 @ApiTags('Upload')
 @Controller('/upload')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Roles(Role.Admin)
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 

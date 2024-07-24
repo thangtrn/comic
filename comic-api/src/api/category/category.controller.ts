@@ -7,9 +7,15 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { Types } from 'mongoose';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+import { Roles } from '~/shared/decorators/roles';
+import { Public } from '~/shared/decorators/public';
+import Role from '~/shared/enums/role.enum';
+import JwtAuthGuard from '~/api/auth/guards/jwt.guard';
 
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dtos/create-category.dto';
@@ -17,10 +23,14 @@ import { UpdateCategoryDto } from './dtos/update-category.dto';
 
 @ApiTags('Category')
 @Controller('/category')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Roles(Role.Admin)
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Get('/')
+  @Public()
   async getAll() {
     return await this.categoryService.getAll();
   }
