@@ -1,12 +1,20 @@
 import { ConfigService } from '@nestjs/config';
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as bycrypt from 'bcrypt';
-
+import * as bcrypt from 'bcrypt';
 import { UserService } from '~/api/user/user.service';
 import { UserDocument } from '~/schemas/user.schema';
 import { RegisterDto } from './dtos/register.dto';
 import { JwtPayload } from '~/shared/types/jwt-payload.type';
+import { LogoutDto } from './dtos/logout.dto';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+
+const ACCESS_TOKEN_EXPIRY = 7 * 24 * 60 * 60; // 7 days
+const REFRESH_TOKEN_EXPIRY = 90 * 24 * 60 * 60; // 90 days
+
+// ================== Redis Key Generation ====================
+export const redisAccessTokenKey = (token: string) => `accessToken:${token}`;
+export const redisRefreshTokenKey = (token: string) => `refreshToken:${token}`;
 
 @Injectable()
 export class AuthService {
@@ -14,38 +22,39 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly userService: UserService,
     private configService: ConfigService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  private async hashPassword(password: string) {
-    return await bycrypt.hash(password, 12);
+  // ================== Common ====================
+  private async hashPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, 12);
   }
 
-  private async comparePassword(password: string, hashPassword: string) {
-    return await bycrypt.compare(password, hashPassword);
+  private async comparePassword(
+    password: string,
+    hashPassword: string,
+  ): Promise<boolean> {
+    return bcrypt.compare(password, hashPassword);
   }
 
-  private async createToken(payload: any) {
-    return await this.jwtService.signAsync(payload, {
-      secret: this.configService.get<string>('JWT_SECRECT'),
-      expiresIn: '7d',
+  private async createToken(payload: JwtPayload): Promise<string> {
+    return this.jwtService.signAsync(payload, {
+      secret: this.configService.get<string>('JWT_SECRET'),
+      expiresIn: ACCESS_TOKEN_EXPIRY,
     });
   }
 
-  private async createRefresToken(payload: any) {
-    return await this.jwtService.signAsync(payload, {
+  private async createRefreshToken(payload: JwtPayload): Promise<string> {
+    return this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_REFRESH'),
-      expiresIn: '90d',
+      expiresIn: REFRESH_TOKEN_EXPIRY,
     });
   }
 
+  // ================== Functionality ====================
   async validateUser(email: string, password: string): Promise<any | null> {
     const user = await this.userService.findUserByEmail(email);
-    if (!user) {
-      return null;
-    }
-
-    const isMatched = await this.comparePassword(password, user.password);
-    if (!isMatched) {
+    if (!user || !(await this.comparePassword(password, user.password))) {
       return null;
     }
 
@@ -54,40 +63,66 @@ export class AuthService {
   }
 
   async login(user: UserDocument) {
-    const payload: JwtPayload = {
-      userId: user._id,
-    };
+    const payload: JwtPayload = { userId: user._id };
 
-    const [accessToken, refeshToken] = await Promise.all([
+    const [accessToken, refreshToken] = await Promise.all([
       this.createToken(payload),
-      this.createRefresToken(payload),
+      this.createRefreshToken(payload),
+    ]);
+
+    // Set tokens to whitelist
+    await Promise.all([
+      this.cacheManager.set(
+        redisAccessTokenKey(accessToken),
+        'valid',
+        ACCESS_TOKEN_EXPIRY,
+      ),
+      this.cacheManager.set(
+        redisRefreshTokenKey(refreshToken),
+        'valid',
+        REFRESH_TOKEN_EXPIRY,
+      ),
     ]);
 
     return {
-      user: user,
-      token: {
-        accessToken,
-        refeshToken,
-      },
+      user,
+      token: { accessToken, refreshToken },
     };
   }
 
   async register(user: RegisterDto) {
-    const isExists = await this.userService.findUserByEmail(user.email);
-    if (isExists) {
+    const existingUser = await this.userService.findUserByEmail(user.email);
+    if (existingUser) {
       throw new ConflictException('Email already exists');
     }
-    return await this.userService.register({
-      ...user,
-      password: await this.hashPassword(user.password),
-    });
+
+    const hashedPassword = await this.hashPassword(user.password);
+    return this.userService.register({ ...user, password: hashedPassword });
   }
 
-  async generateAccessToken(userId: string) {
-    const payload: JwtPayload = {
-      userId: userId,
-    };
+  async refreshTokens(userId: string, oldAccessToken: string) {
+    const payload: JwtPayload = { userId };
 
-    return await this.createToken(payload);
+    const accessToken = await this.createToken(payload);
+
+    // Remove old access token
+    await this.cacheManager.del(redisAccessTokenKey(oldAccessToken));
+
+    // Set new access token
+    await this.cacheManager.set(
+      redisAccessTokenKey(accessToken),
+      'valid',
+      ACCESS_TOKEN_EXPIRY,
+    );
+
+    return accessToken;
+  }
+
+  async logout({ accessToken, refreshToken }: LogoutDto) {
+    // Remove both access and refresh tokens
+    await Promise.all([
+      this.cacheManager.del(redisAccessTokenKey(accessToken)),
+      this.cacheManager.del(redisRefreshTokenKey(refreshToken)),
+    ]);
   }
 }

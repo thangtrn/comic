@@ -30,7 +30,7 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Get('/')
-  @Public()
+  // @Public()
   async getAll() {
     return await this.categoryService.getAll();
   }
