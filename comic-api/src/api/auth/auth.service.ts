@@ -12,6 +12,9 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 const ACCESS_TOKEN_EXPIRY = 7 * 24 * 60 * 60; // 7 days
 const REFRESH_TOKEN_EXPIRY = 90 * 24 * 60 * 60; // 90 days
 
+const ACCESS_TOKEN_TTL = ACCESS_TOKEN_EXPIRY * 1000;
+const REFRESH_TOKEN_TTL = REFRESH_TOKEN_EXPIRY * 1000;
+
 // ================== Redis Key Generation ====================
 export const redisAccessTokenKey = (token: string) => `accessToken:${token}`;
 export const redisRefreshTokenKey = (token: string) => `refreshToken:${token}`;
@@ -75,12 +78,12 @@ export class AuthService {
       this.cacheManager.set(
         redisAccessTokenKey(accessToken),
         'valid',
-        ACCESS_TOKEN_EXPIRY,
+        ACCESS_TOKEN_TTL,
       ),
       this.cacheManager.set(
         redisRefreshTokenKey(refreshToken),
         'valid',
-        REFRESH_TOKEN_EXPIRY,
+        REFRESH_TOKEN_TTL,
       ),
     ]);
 
@@ -112,7 +115,7 @@ export class AuthService {
     await this.cacheManager.set(
       redisAccessTokenKey(accessToken),
       'valid',
-      ACCESS_TOKEN_EXPIRY,
+      ACCESS_TOKEN_TTL,
     );
 
     return accessToken;

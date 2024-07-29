@@ -8,6 +8,7 @@ import {
   IsString,
 } from 'class-validator';
 import { Types } from 'mongoose';
+import { OptionalObjectId } from '~/shared/decorators/validate-mongo-id';
 import State from '~/shared/enums/state.enum';
 import Status from '~/shared/enums/status.enum';
 
@@ -44,12 +45,8 @@ export class UpdateComicDto {
   @ApiProperty({
     default: '',
   })
-  @IsMongoId()
-  @IsOptional()
-  @Transform(({ value }) =>
-    !value ? null : new Types.ObjectId(value as string),
-  )
-  thumbnail?: string;
+  @OptionalObjectId('thumbnail')
+  thumbnail?: string | Types.ObjectId;
 
   @ApiProperty({
     default: State.Draft,
@@ -61,19 +58,13 @@ export class UpdateComicDto {
   @ApiProperty({
     default: [],
   })
-  @IsOptional()
-  @Transform(({ value }) =>
-    value.map((item: string) => new Types.ObjectId(item as string)),
-  )
+  @OptionalObjectId('authors')
   authors?: string[] | Types.ObjectId[];
 
   @ApiProperty({
     default: [],
   })
-  @IsOptional()
-  @Transform(({ value }) =>
-    value.map((item: string) => new Types.ObjectId(item as string)),
-  )
+  @OptionalObjectId('categories')
   categories?: string[] | Types.ObjectId[];
 
   @IsOptional()

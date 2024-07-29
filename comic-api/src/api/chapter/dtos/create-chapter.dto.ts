@@ -1,15 +1,12 @@
 import { Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import {
-  IsEnum,
-  IsMongoId,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 import State from '~/shared/enums/state.enum';
+import {
+  OptionalObjectId,
+  TransformMongoObjectId,
+} from '~/shared/decorators/validate-mongo-id';
 
 export class CreateChapterDto {
   @ApiProperty({
@@ -29,16 +26,12 @@ export class CreateChapterDto {
   @ApiProperty({
     default: '',
   })
-  @IsNotEmpty()
-  @Transform(({ value }) => new Types.ObjectId(value as string))
+  @TransformMongoObjectId()
   comic: string | Types.ObjectId;
 
   @ApiProperty({
     default: [],
   })
-  @IsOptional()
-  @Transform(({ value }) =>
-    value.map((item: string) => new Types.ObjectId(item as string)),
-  )
+  @OptionalObjectId('images')
   images?: string[] | Types.ObjectId[];
 }

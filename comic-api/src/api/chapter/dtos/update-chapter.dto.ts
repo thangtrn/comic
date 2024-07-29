@@ -3,6 +3,7 @@ import { Transform } from 'class-transformer';
 import { IsMongoId, IsNotEmpty, IsOptional } from 'class-validator';
 import { Types } from 'mongoose';
 import { CreateChapterDto } from './create-chapter.dto';
+import { OptionalObjectId } from '~/shared/decorators/validate-mongo-id';
 
 export class UpdateChapterDto extends PartialType(CreateChapterDto) {
   @ApiProperty({
@@ -15,7 +16,6 @@ export class UpdateChapterDto extends PartialType(CreateChapterDto) {
   @ApiProperty({
     default: '',
   })
-  @IsOptional()
-  @Transform(({ value }) => new Types.ObjectId(value as string))
+  @OptionalObjectId('comic')
   comic?: string | Types.ObjectId;
 }

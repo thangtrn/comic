@@ -13,6 +13,7 @@ import { UploadModule } from '~/api/upload/upload.module';
 import { ComicModule } from '~/api/comic/comic.module';
 import { AuthorModule } from '~/api/author/author.module';
 import { ChapterModule } from '~/api/chapter/chapter.module';
+import { CommentModule } from '~/api/comment/comment.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ChapterModule } from '~/api/chapter/chapter.module';
     ComicModule,
     ChapterModule,
     UploadModule,
+    CommentModule,
   ],
   controllers: [],
   providers: [],

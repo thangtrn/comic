@@ -42,16 +42,6 @@
         └── package.json
         └── 📁public
             └── 📁uploads
-                └── banner-lSokSO1rYH.png
-                └── product-1-JqcX2ZGTdj.jpg
-                └── product-1-unCZvzjhjK.jpg
-                └── product-1-XoyuQf9WMD.jpg
-                └── product-6-hIDUjt9TWg.jpg
-                └── product-6-uzrohEcb6o.jpg
-                └── product-image-2WNR0By2rn.png
-                └── product-image-BolWC9L3m6.png
-                └── product-image-Xf8g44tZnc.png
-                └── rasm-vtlCOTQ97J.png
         └── 📁src
             └── 📁api
                 └── 📁app

@@ -1,6 +1,5 @@
-import { ObjectId, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
 import {
   IsMongoId,
   IsNotEmpty,
@@ -8,6 +7,7 @@ import {
   IsString,
   ValidateIf,
 } from 'class-validator';
+import { OptionalObjectId } from '~/shared/decorators/validate-mongo-id';
 
 export class UpdateFolderDto {
   @IsMongoId()
@@ -25,10 +25,6 @@ export class UpdateFolderDto {
     required: false,
     nullable: true,
   })
-  @IsOptional()
-  @ValidateIf((o) => o.parentFolder !== null || o.parentFolder !== undefined)
-  @Transform(({ value }) =>
-    !value ? null : new Types.ObjectId(value as string),
-  )
+  @OptionalObjectId('parentFolder')
   parentFolder?: Types.ObjectId | string | null;
 }

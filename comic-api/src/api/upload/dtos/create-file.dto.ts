@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import { IsOptional, ValidateIf } from 'class-validator';
 import { Types } from 'mongoose';
+import { OptionalObjectId } from '~/shared/decorators/validate-mongo-id';
 
 export class CreateFileDto {
   @ApiProperty({
@@ -10,10 +9,6 @@ export class CreateFileDto {
     required: false,
     nullable: true,
   })
-  @IsOptional()
-  @ValidateIf((o) => o.parentFolder !== null || o.parentFolder !== undefined)
-  @Transform(({ value }) =>
-    !value ? null : new Types.ObjectId(value as string),
-  )
+  @OptionalObjectId('parentFolder')
   parentFolder?: Types.ObjectId | string | null;
 }
