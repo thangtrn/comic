@@ -21,7 +21,7 @@ export class User {
   @Prop({})
   notify: boolean;
 
-  @Prop({ type: String })
+  @Prop({ type: Boolean })
   fcmToken: boolean;
 
   @Prop({ type: Boolean, default: false })

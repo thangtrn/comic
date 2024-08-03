@@ -14,6 +14,8 @@ import { ComicModule } from '~/api/comic/comic.module';
 import { AuthorModule } from '~/api/author/author.module';
 import { ChapterModule } from '~/api/chapter/chapter.module';
 import { CommentModule } from '~/api/comment/comment.module';
+import { FollowModule } from '~/api/follow/follow.module';
+import { NotificationModule } from '~/api/notification/notification.module';
 
 @Module({
   imports: [
@@ -46,6 +48,8 @@ import { CommentModule } from '~/api/comment/comment.module';
     ChapterModule,
     UploadModule,
     CommentModule,
+    FollowModule,
+    NotificationModule,
   ],
   controllers: [],
   providers: [],

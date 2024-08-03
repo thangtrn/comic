@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -9,17 +8,16 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { Types } from 'mongoose';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Roles } from '~/shared/decorators/roles';
-import { Public } from '~/shared/decorators/public';
 import Role from '~/shared/enums/role.enum';
 import JwtAuthGuard from '~/api/auth/guards/jwt.guard';
 
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
+import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
 
 @ApiTags('Category')
 @Controller('/category')
@@ -46,10 +44,7 @@ export class CategoryController {
   }
 
   @Delete('/:_id')
-  async delete(@Param('_id') _id: string) {
-    if (!Types.ObjectId.isValid(_id)) {
-      throw new BadRequestException('Type of _id is invalid.');
-    }
-    return await this.categoryService.delete(new Types.ObjectId(_id));
+  async delete(@Param() param: SingleIdDto) {
+    return await this.categoryService.delete(param._id);
   }
 }

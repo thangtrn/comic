@@ -6,10 +6,8 @@ import {
   Body,
   Param,
   Controller,
-  BadRequestException,
   UseGuards,
 } from '@nestjs/common';
-import { Types } from 'mongoose';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Roles } from '~/shared/decorators/roles';
@@ -21,6 +19,7 @@ import { ComicService } from './comic.service';
 import { CreateComicDto } from './dtos/create-comic.dtos';
 import { UpdateComicDto } from './dtos/update-comic.dtos';
 import { ChapterService } from '../chapter/chapter.service';
+import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
 
 @ApiTags('Comic')
 @Controller('comic')
@@ -64,10 +63,7 @@ export class ComicController {
   }
 
   @Delete('/:_id')
-  async delete(@Param('_id') _id: string) {
-    if (!Types.ObjectId.isValid(_id)) {
-      throw new BadRequestException('Type of _id is invalid.');
-    }
-    return this.comicService.delete(new Types.ObjectId(_id));
+  async delete(@Param() param: SingleIdDto) {
+    return this.comicService.delete(param._id);
   }
 }

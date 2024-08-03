@@ -8,11 +8,13 @@ import {
   Put,
   BadRequestException,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { Types } from 'mongoose';
+
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dtos/create-comment.dto';
 import { UpdateCommentDto } from './dtos/update-comment.dto';
-import { ApiTags } from '@nestjs/swagger';
-import { Types } from 'mongoose';
+import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
 
 @ApiTags('Comment')
 @Controller('comment')
@@ -43,10 +45,7 @@ export class CommentController {
   }
 
   @Delete('/:_id')
-  delete(@Param('_id') _id: string) {
-    if (!Types.ObjectId.isValid(_id)) {
-      throw new BadRequestException('Type of _id is invalid.');
-    }
-    return this.commentService.delete(new Types.ObjectId(_id));
+  delete(@Param() param: SingleIdDto) {
+    return this.commentService.delete(param._id);
   }
 }
