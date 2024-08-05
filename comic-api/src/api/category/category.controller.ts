@@ -20,6 +20,7 @@ import { CreateCategoryDto } from './dtos/create-category.dto';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
 import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
 import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
+import { Public } from '~/shared/decorators/public';
 
 @ApiTags('Category')
 @Controller('/category')
@@ -29,8 +30,8 @@ import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
+  @Public()
   @Get('/')
-  // @Public()
   async getAll(@Query() pagination: PaginationQueryDto) {
     return await this.categoryService.getAll(pagination);
   }

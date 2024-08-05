@@ -30,8 +30,8 @@ import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 export class AuthorController {
   constructor(private readonly authorService: AuthorService) {}
 
-  @Get('/')
   @Public()
+  @Get('/')
   async getAll(@Query() pagination: PaginationQueryDto) {
     return await this.authorService.getAll(pagination);
   }

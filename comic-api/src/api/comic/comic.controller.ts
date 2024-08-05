@@ -33,20 +33,21 @@ export class ComicController {
     private readonly comicService: ComicService,
     private readonly chapterService: ChapterService,
   ) {}
-  @Get('/')
+
   @Public()
+  @Get('/')
   async getByQuery(@Query() comicQuery: QueryComicDto) {
     return this.comicService.getByQuery(comicQuery);
   }
 
-  @Get('/:slug')
   @Public()
+  @Get('/:slug')
   async getBySlug(@Param('slug') slug: string) {
     return await this.comicService.getBySlug(slug);
   }
 
-  @Get('/:comicSlug/chapter/:chapterSlug')
   @Public()
+  @Get('/:comicSlug/chapter/:chapterSlug')
   async getChapterBySlug(
     @Param('comicSlug') comicSlug: string,
     @Param('chapterSlug') chapterSlug: string,

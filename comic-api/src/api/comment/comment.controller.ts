@@ -29,8 +29,8 @@ import { Public } from '~/shared/decorators/public';
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
-  @Get('/:comicId')
   @Public()
+  @Get('/:comicId')
   getByComicId(
     @Param() comment: GetCommentByComicIdDto,
     @Query() pagination: PaginationQueryDto,
