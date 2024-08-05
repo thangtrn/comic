@@ -6,6 +6,8 @@ import { NotificationTemplate } from '~/schemas/notification-template.schema';
 import { CreateNotificationTemplateDto } from './dto/create-notification-template.dto';
 import { UpdateNotificationTemplateDto } from './dto/update-notification-template.dto';
 import removeNullUndefinedFields from '~/utils/removeNullUndefinedFields';
+import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
+import returnMeta from '~/helpers/metadata';
 
 @Injectable()
 export class NotificationService {
@@ -21,8 +23,16 @@ export class NotificationService {
     return doc;
   }
 
-  async getAll() {
-    return await this.nofiticationTemplateModel.find();
+  async getAll(pagination: PaginationQueryDto) {
+    const [count, docs] = await Promise.all([
+      this.nofiticationTemplateModel.countDocuments(),
+      this.nofiticationTemplateModel
+        .find()
+        .skip(pagination.skip)
+        .limit(pagination.limit),
+    ]);
+
+    return returnMeta(docs, pagination.page, pagination.limit, count);
   }
 
   async update(notification: UpdateNotificationTemplateDto) {

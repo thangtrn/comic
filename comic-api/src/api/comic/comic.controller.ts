@@ -7,6 +7,7 @@ import {
   Param,
   Controller,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
@@ -16,10 +17,11 @@ import Role from '~/shared/enums/role.enum';
 import JwtAuthGuard from '~/api/auth/guards/jwt.guard';
 
 import { ComicService } from './comic.service';
-import { CreateComicDto } from './dtos/create-comic.dtos';
-import { UpdateComicDto } from './dtos/update-comic.dtos';
+import { CreateComicDto } from './dtos/create-comic.dto';
+import { UpdateComicDto } from './dtos/update-comic.dto';
 import { ChapterService } from '../chapter/chapter.service';
 import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
+import { QueryComicDto } from './dtos/query-comic.dto';
 
 @ApiTags('Comic')
 @Controller('comic')
@@ -33,8 +35,8 @@ export class ComicController {
   ) {}
   @Get('/')
   @Public()
-  async getByQuery() {
-    return this.comicService.getByQuery();
+  async getByQuery(@Query() comicQuery: QueryComicDto) {
+    return this.comicService.getByQuery(comicQuery);
   }
 
   @Get('/:slug')

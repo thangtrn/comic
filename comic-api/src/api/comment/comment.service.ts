@@ -5,6 +5,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateCommentDto } from './dtos/create-comment.dto';
 import { UpdateCommentDto } from './dtos/update-comment.dto';
 import { Comment } from '~/schemas/comment.schema';
+import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
+import returnMeta from '~/helpers/metadata';
 
 @Injectable()
 export class CommentService {
@@ -21,12 +23,16 @@ export class CommentService {
     return await this.commentModel.find();
   }
 
-  async getByComicId(comicId: Types.ObjectId) {
-    const doc = await this.commentModel.findOne({ comic: comicId });
-    if (!doc) {
-      throw new NotFoundException('Not found.');
-    }
-    return doc;
+  async getByComicId(comicId: Types.ObjectId, pagination: PaginationQueryDto) {
+    const [count, docs] = await Promise.all([
+      this.commentModel.countDocuments({ comic: comicId }),
+      this.commentModel
+        .find({ comic: comicId })
+        .skip(pagination.skip)
+        .limit(pagination.limit),
+    ]);
+
+    return returnMeta(docs, pagination.page, pagination.limit, count);
   }
 
   async update(comment: UpdateCommentDto) {

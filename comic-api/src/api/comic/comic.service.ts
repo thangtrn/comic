@@ -2,16 +2,32 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Comic } from '~/schemas/comic.schema';
-import { CreateComicDto } from './dtos/create-comic.dtos';
-import { UpdateComicDto } from './dtos/update-comic.dtos';
+import { CreateComicDto } from './dtos/create-comic.dto';
+import { UpdateComicDto } from './dtos/update-comic.dto';
+import { QueryComicDto } from './dtos/query-comic.dto';
 import removeNullUndefinedFields from '~/utils/removeNullUndefinedFields';
+import returnMeta from '~/helpers/metadata';
 
 @Injectable()
 export class ComicService {
   constructor(@InjectModel(Comic.name) private comicModel: Model<Comic>) {}
 
-  async getByQuery() {
-    return await this.comicModel.find();
+  async getByQuery(comicQuery: QueryComicDto) {
+    const searchOption = {
+      name: {
+        $regex: `.*${comicQuery.search || ''}.*`,
+        $options: 'i',
+      },
+    };
+    const [count, docs] = await Promise.all([
+      this.comicModel.countDocuments(searchOption),
+      this.comicModel
+        .find(searchOption)
+        .skip(comicQuery.skip)
+        .limit(comicQuery.limit),
+    ]);
+
+    return returnMeta(docs, comicQuery.page, comicQuery.limit, count);
   }
 
   async getBySlug(slug: string) {

@@ -5,7 +5,6 @@ import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dtos/register.dto';
 import LocalAuthGuard from './guards/local.guard';
-import JwtAuthGuard from './guards/jwt.guard';
 import JwtRefreshAuthGuard from './guards/jwt-refresh.guard';
 import { LogoutDto } from './dtos/logout.dto';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
@@ -56,12 +55,5 @@ export class AuthController {
       user?._id,
       token.oldAccessToken,
     );
-  }
-
-  @Get('/private')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  async private(@Req() req: Request) {
-    return req.user;
   }
 }

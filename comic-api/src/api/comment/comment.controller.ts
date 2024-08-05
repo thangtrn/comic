@@ -7,14 +7,17 @@ import {
   Delete,
   Put,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { Types } from 'mongoose';
 
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dtos/create-comment.dto';
 import { UpdateCommentDto } from './dtos/update-comment.dto';
 import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
+import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
+import { GetCommentByComicIdDto } from './dtos/get-comment.dto';
 
 @ApiTags('Comment')
 @Controller('comment')
@@ -26,17 +29,12 @@ export class CommentController {
     return this.commentService.create(comment);
   }
 
-  @Get('/')
-  getAll() {
-    return this.commentService.getAll();
-  }
-
   @Get('/:comicId')
-  getByComicId(@Param('comicId') comicId: string) {
-    if (!Types.ObjectId.isValid(comicId)) {
-      throw new BadRequestException('Type of _id is invalid.');
-    }
-    return this.commentService.getByComicId(new Types.ObjectId(comicId));
+  getByComicId(
+    @Param() comment: GetCommentByComicIdDto,
+    @Query() pagination: PaginationQueryDto,
+  ) {
+    return this.commentService.getByComicId(comment.comicId, pagination);
   }
 
   @Put('/:_id')

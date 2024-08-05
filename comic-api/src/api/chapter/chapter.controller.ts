@@ -28,12 +28,6 @@ import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
 export class ChapterController {
   constructor(private readonly chapterService: ChapterService) {}
 
-  @Get('/')
-  @Public()
-  async getAll() {
-    return await this.chapterService.getAll();
-  }
-
   @Post('/')
   async create(@Body() chapter: CreateChapterDto) {
     return await this.chapterService.create(chapter);

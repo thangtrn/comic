@@ -4,13 +4,19 @@ import { Model, Types } from 'mongoose';
 import { Author } from '~/schemas/author.schema';
 import { CreateAuthorDto } from './dtos/create-author.dto';
 import { UpdateAuthorDto } from './dtos/update-author.dto';
+import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
+import returnMeta from '~/helpers/metadata';
 
 @Injectable()
 export class AuthorService {
   constructor(@InjectModel(Author.name) private authorModel: Model<Author>) {}
 
-  async getAll() {
-    return await this.authorModel.find();
+  async getAll(pagination: PaginationQueryDto) {
+    const [docs, count] = await Promise.all([
+      this.authorModel.find().skip(pagination.skip).limit(pagination.limit),
+      this.authorModel.countDocuments(),
+    ]);
+    return returnMeta(docs, pagination.page, pagination.limit, count);
   }
 
   async create(author: CreateAuthorDto) {

@@ -6,7 +6,7 @@ import {
   Put,
   Param,
   Delete,
-  BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { CreateNotificationTemplateDto } from './dto/create-notification-template.dto';
@@ -14,6 +14,7 @@ import { UpdateNotificationTemplateDto } from './dto/update-notification-templat
 import { Types } from 'mongoose';
 import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 
 @ApiTags('Notification')
 @Controller('notification')
@@ -26,8 +27,8 @@ export class NotificationController {
   }
 
   @Get('/')
-  getAllTemplate() {
-    return this.notificationService.getAll();
+  getAllTemplate(@Query() pagination: PaginationQueryDto) {
+    return this.notificationService.getAll(pagination);
   }
 
   @Put('/')

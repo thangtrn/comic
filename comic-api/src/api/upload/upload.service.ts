@@ -11,6 +11,9 @@ import { UpdateFolderDto } from './dtos/update-folder.dto';
 import { CreateFileDto } from './dtos/create-file.dto';
 import { UpdateFileDto } from './dtos/update-file.dto';
 import removeNullUndefinedFields from '~/utils/removeNullUndefinedFields';
+import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
+import returnMeta from '~/helpers/metadata';
+import { QueryAssetsDto } from './dtos/query-assets.dto';
 
 @Injectable()
 export class UploadService {
@@ -20,50 +23,72 @@ export class UploadService {
   ) {}
 
   // file handler
-  async getFilesAndFoldersByParentFolderId(parentFolderId: Types.ObjectId) {
-    return await this.folderModel.aggregate([
-      {
-        $match: {
-          parentFolder: parentFolderId,
-        },
-      },
-      {
-        $group: {
-          _id: '$parentFolder',
-          folders: {
-            $push: '$$ROOT',
+  async getFilesAndFoldersByParentFolderId(query: QueryAssetsDto) {
+    const [count, docs] = await Promise.all([
+      this.mediaModel.countDocuments({ parentFolder: query.parentFolderId }),
+      await this.folderModel.aggregate([
+        {
+          $match: {
+            parentFolder: query.parentFolderId,
           },
         },
-      },
-      {
-        $lookup: {
-          from: 'media',
-          localField: '_id',
-          foreignField: 'parentFolder',
-          as: 'files',
+        {
+          $group: {
+            _id: '$parentFolder',
+            folders: {
+              $push: '$$ROOT',
+            },
+          },
         },
-      },
-      {
-        $graphLookup: {
-          from: 'folders',
-          startWith: '$_id',
-          connectFromField: 'parentFolder',
-          connectToField: '_id',
-          as: 'breadcrumb',
-          maxDepth: 10,
-          depthField: 'level',
+        {
+          $lookup: {
+            from: 'media',
+            let: {
+              parentFolderId: '$_id',
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$parentFolder', '$$parentFolderId'],
+                  },
+                },
+              },
+              {
+                $skip: query.skip,
+              },
+              {
+                $limit: query.limit,
+              },
+            ],
+            as: 'files',
+          },
         },
-      },
-      {
-        $project: {
-          _id: 0,
-          parentFolder: '$_id',
-          breadcrumb: { $reverseArray: '$breadcrumb' },
-          folders: '$folders',
-          files: '$files',
+        {
+          $graphLookup: {
+            from: 'folders',
+            startWith: '$_id',
+            connectFromField: 'parentFolder',
+            connectToField: '_id',
+            as: 'breadcrumb',
+            maxDepth: 10,
+            depthField: 'level',
+          },
         },
-      },
+        {
+          $project: {
+            _id: 0,
+            parentFolder: '$_id',
+            breadcrumb: {
+              $reverseArray: '$breadcrumb',
+            },
+            folders: '$folders',
+            files: '$files',
+          },
+        },
+      ]),
     ]);
+    return returnMeta(docs, query.page, query.limit, count);
   }
 
   async uploadFiles(files: Array<Express.Multer.File>, fileDto: CreateFileDto) {

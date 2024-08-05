@@ -38,9 +38,9 @@ export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Get('/assets')
-  async getFilesAndFoldersByParentFolder(@Query() query?: QueryAssetsDto) {
+  async getFilesAndFoldersByParentFolder(@Query() assetsQuery: QueryAssetsDto) {
     return await this.uploadService.getFilesAndFoldersByParentFolderId(
-      query.parent,
+      assetsQuery,
     );
   }
 

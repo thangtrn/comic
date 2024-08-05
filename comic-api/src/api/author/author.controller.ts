@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -19,6 +20,7 @@ import { AuthorService } from './author.service';
 import { CreateAuthorDto } from './dtos/create-author.dto';
 import { UpdateAuthorDto } from './dtos/update-author.dto';
 import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
+import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 
 @ApiTags('Author')
 @Controller('author')
@@ -30,8 +32,8 @@ export class AuthorController {
 
   @Get('/')
   @Public()
-  async getAll() {
-    return await this.authorService.getAll();
+  async getAll(@Query() pagination: PaginationQueryDto) {
+    return await this.authorService.getAll(pagination);
   }
 
   @Post('/')

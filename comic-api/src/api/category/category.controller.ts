@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -18,6 +19,7 @@ import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
 import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
+import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 
 @ApiTags('Category')
 @Controller('/category')
@@ -29,8 +31,8 @@ export class CategoryController {
 
   @Get('/')
   // @Public()
-  async getAll() {
-    return await this.categoryService.getAll();
+  async getAll(@Query() pagination: PaginationQueryDto) {
+    return await this.categoryService.getAll(pagination);
   }
 
   @Post('/')
