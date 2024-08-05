@@ -1,19 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Notification } from '~/schemas/notification.schema';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { NotificationTemplate } from '~/schemas/notification-template.schema';
-import { CreateNotificationTemplateDto } from './dto/create-notification-template.dto';
-import { UpdateNotificationTemplateDto } from './dto/update-notification-template.dto';
+import { CreateNotificationTemplateDto } from '../dtos/create-notification-template.dto';
+import { UpdateNotificationTemplateDto } from '../dtos/update-notification-template.dto';
 import removeNullUndefinedFields from '~/utils/removeNullUndefinedFields';
 import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 import returnMeta from '~/helpers/metadata';
 
 @Injectable()
-export class NotificationService {
+export class NotificationTemplateService {
   constructor(
-    @InjectModel(Notification.name)
-    private nofiticationModel: Model<Notification>,
     @InjectModel(NotificationTemplate.name)
     private nofiticationTemplateModel: Model<NotificationTemplate>,
   ) {}
@@ -23,7 +20,7 @@ export class NotificationService {
     return doc;
   }
 
-  async getAll(pagination: PaginationQueryDto) {
+  async getAllTemplate(pagination: PaginationQueryDto) {
     const [count, docs] = await Promise.all([
       this.nofiticationTemplateModel.countDocuments(),
       this.nofiticationTemplateModel

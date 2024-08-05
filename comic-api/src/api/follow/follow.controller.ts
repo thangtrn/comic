@@ -3,42 +3,47 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
-  BadRequestException,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
 import { FollowService } from './follow.service';
 import { CreateFollowDto } from './dto/create-follow.dto';
 import { UpdateFollowDto } from './dto/update-follow.dto';
-import { Types } from 'mongoose';
-import { ApiTags } from '@nestjs/swagger';
+import JwtAuthGuard from '../auth/guards/jwt.guard';
+import { GetFollowDto } from './dto/get-follow.dto';
+import { Public } from '~/shared/decorators/public';
+import { Request } from 'express';
 
 @ApiTags('Follow')
 @Controller('follow')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 export class FollowController {
   constructor(private readonly followService: FollowService) {}
 
+  @Public()
   @Get('/:comicId')
-  getByComicId(@Param('comicId') comicId: string) {
-    if (!Types.ObjectId.isValid(comicId)) {
-      throw new BadRequestException('Type of comicId is invalid.');
-    }
-    return this.followService.getByComicId(new Types.ObjectId(comicId));
+  getByComicId(@Param() params: GetFollowDto) {
+    return this.followService.getByComicId(params.comicId);
   }
 
-  @Post()
-  create(@Body() follow: CreateFollowDto) {
-    return this.followService.create(follow);
+  @Post('/')
+  create(@Req() req: Request, @Body() follow: CreateFollowDto) {
+    return this.followService.create(req.user._id, follow);
   }
 
-  @Patch(':id')
-  update(@Body() follow: UpdateFollowDto) {
-    return this.followService.update(follow);
+  @Put('/')
+  update(@Req() req: Request, @Body() follow: UpdateFollowDto) {
+    return this.followService.update(req.user._id, follow);
   }
 
-  @Delete()
-  delete(@Body() follow: CreateFollowDto) {
-    return this.followService.delete(follow);
+  @Delete('/')
+  delete(@Req() req: Request, @Body() follow: CreateFollowDto) {
+    return this.followService.delete(req.user._id, follow);
   }
 }

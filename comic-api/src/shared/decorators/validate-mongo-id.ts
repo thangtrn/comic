@@ -34,7 +34,7 @@ export const TransformMongoObjectId = () =>
               `${v} is not a valid MongoDB ObjectId`,
             );
           }
-          return new Types.ObjectId(v);
+          return new Types.ObjectId(v as string);
         });
         return transformedValues;
       }

@@ -2,11 +2,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Types } from 'mongoose';
 import { TransformMongoObjectId } from '~/shared/decorators/validate-mongo-id';
 
-export class CreateFollowDto {
+export class GetFollowDto {
   @ApiProperty({
     type: String,
-    default: '',
+    example: 'string',
   })
   @TransformMongoObjectId()
-  comic: Types.ObjectId | string;
+  comicId: Types.ObjectId;
 }

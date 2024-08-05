@@ -11,13 +11,7 @@ export class CreateCommentDto {
     default: '',
   })
   @TransformMongoObjectId()
-  user: string | Types.ObjectId;
-
-  @ApiProperty({
-    default: '',
-  })
-  @TransformMongoObjectId()
-  comic: string | Types.ObjectId;
+  comic: Types.ObjectId;
 
   @IsNotEmpty()
   @IsString()
@@ -27,5 +21,5 @@ export class CreateCommentDto {
     default: '',
   })
   @OptionalObjectId('parentComment')
-  parentComment: string | Types.ObjectId;
+  parentComment: Types.ObjectId;
 }

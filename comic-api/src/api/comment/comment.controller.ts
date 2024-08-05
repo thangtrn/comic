@@ -6,11 +6,11 @@ import {
   Param,
   Delete,
   Put,
-  BadRequestException,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
-import { Types } from 'mongoose';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dtos/create-comment.dto';
@@ -18,18 +18,19 @@ import { UpdateCommentDto } from './dtos/update-comment.dto';
 import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
 import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 import { GetCommentByComicIdDto } from './dtos/get-comment.dto';
+import { Request } from 'express';
+import JwtAuthGuard from '../auth/guards/jwt.guard';
+import { Public } from '~/shared/decorators/public';
 
 @ApiTags('Comment')
 @Controller('comment')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
-  @Post('/')
-  create(@Body() comment: CreateCommentDto) {
-    return this.commentService.create(comment);
-  }
-
   @Get('/:comicId')
+  @Public()
   getByComicId(
     @Param() comment: GetCommentByComicIdDto,
     @Query() pagination: PaginationQueryDto,
@@ -37,13 +38,18 @@ export class CommentController {
     return this.commentService.getByComicId(comment.comicId, pagination);
   }
 
-  @Put('/:_id')
-  update(@Body() comment: UpdateCommentDto) {
-    return this.commentService.update(comment);
+  @Post('/')
+  create(@Req() req: Request, @Body() comment: CreateCommentDto) {
+    return this.commentService.create(req.user._id, comment);
+  }
+
+  @Put('/')
+  update(@Req() req: Request, @Body() comment: UpdateCommentDto) {
+    return this.commentService.update(req.user, comment);
   }
 
   @Delete('/:_id')
-  delete(@Param() param: SingleIdDto) {
-    return this.commentService.delete(param._id);
+  delete(@Req() req: Request, @Param() param: SingleIdDto) {
+    return this.commentService.delete(req.user, param._id);
   }
 }

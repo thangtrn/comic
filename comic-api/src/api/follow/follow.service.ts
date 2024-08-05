@@ -16,13 +16,13 @@ export class FollowService {
       .populate({ path: 'user', select: 'name email' });
   }
 
-  async create(follow: CreateFollowDto) {
-    return await this.followModel.create(follow);
+  async create(userId: Types.ObjectId, follow: CreateFollowDto) {
+    return await this.followModel.create({ user: userId, comic: follow.comic });
   }
 
-  async update(follow: UpdateFollowDto) {
+  async update(userId: Types.ObjectId, follow: UpdateFollowDto) {
     const doc = await this.followModel.findOneAndUpdate(
-      { comic: follow.comic, user: follow.user },
+      { comic: follow.comic, user: userId },
       {
         $set: {
           nofity: follow.notify,
@@ -32,20 +32,20 @@ export class FollowService {
     );
     if (!doc) {
       throw new NotFoundException(
-        `Not found follow with comicId = ${follow.comic} and userId = ${follow.user}.`,
+        `Not found follow with comicId = ${follow.comic} and userId = ${userId}.`,
       );
     }
     return doc;
   }
 
-  async delete(follow: CreateFollowDto) {
+  async delete(userId: Types.ObjectId, follow: CreateFollowDto) {
     const doc = await this.followModel.findOneAndDelete({
       comic: follow.comic,
-      user: follow.user,
+      user: userId,
     });
     if (!doc) {
       throw new NotFoundException(
-        `Not found follow with comicId = ${follow.comic} and userId = ${follow.user}.`,
+        `Not found follow with comicId = ${follow.comic} and userId = ${userId}.`,
       );
     }
     return doc;

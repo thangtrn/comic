@@ -8,7 +8,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '~/shared/decorators/public';
-import { ROLES_KEY } from '~/shared/decorators/roles';
+import { Roles, ROLES_KEY } from '~/shared/decorators/roles';
 import Role from '~/shared/enums/role.enum';
 import { redisAccessTokenKey } from '../auth.service';
 
@@ -22,6 +22,10 @@ export default class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    if (this.isPublicRoute(context)) {
+      return true;
+    }
+
     const canActivate = (await super.canActivate(context)) as boolean;
     if (!canActivate) {
       return false;
@@ -38,10 +42,6 @@ export default class JwtAuthGuard extends AuthGuard('jwt') {
 
     if (!tokenStatus || tokenStatus === 'revoked') {
       throw new UnauthorizedException('Token has been revoked or is invalid');
-    }
-
-    if (this.isPublicRoute(context)) {
-      return true;
     }
 
     return this.hasRequiredRoles(context, request);
@@ -70,10 +70,13 @@ export default class JwtAuthGuard extends AuthGuard('jwt') {
       context.getClass(),
     ]);
 
-    if (!requiredRoles) {
+    if (request?.user?.role === Role.Admin) {
       return true;
     }
 
-    return requiredRoles.some((role) => role === request?.user?.role);
+    if (!requiredRoles || requiredRoles.length <= 0) {
+      return true;
+    }
+    return requiredRoles?.some((role) => role === request.user.role);
   }
 }
