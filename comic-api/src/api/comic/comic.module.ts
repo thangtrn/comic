@@ -13,5 +13,6 @@ import { ChapterModule } from '~/api/chapter/chapter.module';
   ],
   providers: [ComicService],
   controllers: [ComicController],
+  exports: [ComicService],
 })
 export class ComicModule {}

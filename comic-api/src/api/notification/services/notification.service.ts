@@ -6,6 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 import returnMeta from '~/helpers/metadata';
 import checkUserPermission from '~/helpers/checkUserPermission';
+import { CreateNotificationDto } from '../dtos/create-notification.dto';
 
 @Injectable()
 export class NotificationService {
@@ -28,6 +29,10 @@ export class NotificationService {
     ]);
 
     return returnMeta(docs, pagination.page, pagination.limit, count);
+  }
+
+  async createMany(notifications: CreateNotificationDto[]) {
+    return await this.nofiticationModel.insertMany(notifications);
   }
 
   async read(user: UserDocument, _id: Types.ObjectId) {

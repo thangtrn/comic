@@ -1,20 +1,22 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+
 import { Chapter } from '~/schemas/chapter.schema';
 import { CreateChapterDto } from './dtos/create-chapter.dto';
 import { UpdateChapterDto } from './dtos/update-chapter.dto';
 import removeNullUndefinedFields from '~/utils/removeNullUndefinedFields';
+import { ComicService } from '~/api/comic/comic.service';
+import NotifyType from '~/shared/enums/notification.enum';
 
 @Injectable()
 export class ChapterService {
   constructor(
     @InjectModel(Chapter.name) private chapterModel: Model<Chapter>,
+    private eventEmitter: EventEmitter2,
+    private readonly comicService: ComicService,
   ) {}
-
-  async getAll() {
-    return await this.chapterModel.find();
-  }
 
   async getChapterBySlug(comicSlug: string, chapterSlug: string) {
     const doc = await this.chapterModel.aggregate([
@@ -122,7 +124,23 @@ export class ChapterService {
   }
 
   async create(chapter: CreateChapterDto) {
-    return await this.chapterModel.create(chapter);
+    const doc = await this.chapterModel.create(chapter);
+
+    const docChapter = doc.toJSON();
+
+    // for notify
+    const docInfo = await this.comicService.getListUserFollow(
+      chapter.comic as Types.ObjectId,
+    );
+
+    this.eventEmitter.emit('notification.created', NotifyType.NewChapter, {
+      userIds: docInfo.userIds,
+      comicName: docInfo.name,
+      chapterName: chapter.name,
+    });
+    // end for notify
+
+    return docChapter;
   }
 
   async update(chapter: UpdateChapterDto) {

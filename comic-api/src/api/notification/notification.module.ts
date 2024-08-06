@@ -14,6 +14,7 @@ import {
   NotificationTemplateSchema,
 } from '~/schemas/notification-template.schema';
 import { NotificationTemplateService } from './services/notification-template.service';
+import { NotificationListener } from './notification.listener';
 
 @Module({
   imports: [
@@ -23,6 +24,10 @@ import { NotificationTemplateService } from './services/notification-template.se
     ]),
   ],
   controllers: [NotificationController, NotificationTemplateController],
-  providers: [NotificationService, NotificationTemplateService],
+  providers: [
+    NotificationService,
+    NotificationTemplateService,
+    NotificationListener,
+  ],
 })
 export class NotificationModule {}

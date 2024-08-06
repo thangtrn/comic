@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { redisStore } from 'cache-manager-redis-yet';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import MongooseSlugUpdater = require('mongoose-slug-updater');
 
 import { AuthModule } from '~/api/auth/auth.module';
@@ -40,6 +41,7 @@ import { NotificationModule } from '~/api/notification/notification.module';
         return connection;
       },
     }),
+    EventEmitterModule.forRoot(),
     AuthModule,
     UserModule,
     CategoryModule,

@@ -15,7 +15,7 @@ export class Follow {
   user: Folder | Types.ObjectId;
 
   @Prop({ type: Boolean, default: true })
-  nofity: boolean;
+  notify: boolean;
 }
 
 export const FollowSchema = SchemaFactory.createForClass(Follow);

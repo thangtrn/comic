@@ -1,3 +1,4 @@
+import { map } from 'rxjs/operators';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -122,5 +123,42 @@ export class ComicService {
     }
 
     return doc;
+  }
+
+  async getListUserFollow(comicId: Types.ObjectId) {
+    const docs = await this.comicModel.aggregate([
+      {
+        $match: {
+          _id: comicId,
+        },
+      },
+      {
+        $lookup: {
+          from: 'follows',
+          localField: '_id',
+          foreignField: 'comic',
+          as: 'follows',
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          follows: {
+            $filter: {
+              input: '$follows',
+              as: 'item',
+              cond: { $eq: ['$$item.notify', true] },
+            },
+          },
+        },
+      },
+    ]);
+    return {
+      comicId: docs?.[0]?._id,
+      name: docs?.[0]?.name,
+      userIds: docs?.[0]?.follows?.map(
+        (item: { user: Types.ObjectId }) => item.user,
+      ),
+    };
   }
 }

@@ -10,5 +10,6 @@ import { Follow, FollowSchema } from '~/schemas/follow.schema';
   ],
   controllers: [FollowController],
   providers: [FollowService],
+  exports: [FollowService],
 })
 export class FollowModule {}

@@ -25,7 +25,7 @@ export class FollowService {
       { comic: follow.comic, user: userId },
       {
         $set: {
-          nofity: follow.notify,
+          notify: follow.notify,
         },
       },
       { new: true },

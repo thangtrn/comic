@@ -7,6 +7,7 @@ import { UpdateNotificationTemplateDto } from '../dtos/update-notification-templ
 import removeNullUndefinedFields from '~/utils/removeNullUndefinedFields';
 import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 import returnMeta from '~/helpers/metadata';
+import NotifyType from '~/shared/enums/notification.enum';
 
 @Injectable()
 export class NotificationTemplateService {
@@ -59,6 +60,11 @@ export class NotificationTemplateService {
         'Not notification template with _id = ' + _id,
       );
     }
+    return doc;
+  }
+
+  async getTemplateByType(type: NotifyType) {
+    const doc = await this.nofiticationTemplateModel.findOne({ type: type });
     return doc;
   }
 }
