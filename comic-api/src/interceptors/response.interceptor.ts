@@ -1,11 +1,4 @@
-import {
-  CallHandler,
-  ExecutionContext,
-  HttpStatus,
-  Injectable,
-  NestInterceptor,
-  SetMetadata,
-} from '@nestjs/common';
+import { CallHandler, ExecutionContext, HttpStatus, Injectable, NestInterceptor, SetMetadata } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -26,9 +19,7 @@ export const ResponseMessage = (message: string) => {
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    return next
-      .handle()
-      .pipe(map((metadata: any) => this.responseHandler(metadata, context)));
+    return next.handle().pipe(map((metadata: any) => this.responseHandler(metadata, context)));
   }
 
   /**
@@ -43,9 +34,7 @@ export class ResponseInterceptor implements NestInterceptor {
 
     return {
       statusCode,
-      message:
-        Reflect.getMetadata('response_message', context.getHandler()) ||
-        'Successfully',
+      message: Reflect.getMetadata('response_message', context.getHandler()) || 'Successfully',
       metadata: metadata,
     };
   }

@@ -1,10 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { Types } from 'mongoose';
-import {
-  OptionalObjectId,
-  TransformMongoObjectId,
-} from '~/shared/decorators/validate-mongo-id';
+import { OptionalObjectId, TransformMongoObjectId } from '~/shared/decorators/validate-mongo-id';
 
 export class CreateCommentDto {
   @ApiProperty({

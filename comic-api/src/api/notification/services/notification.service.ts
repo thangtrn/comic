@@ -22,10 +22,7 @@ export class NotificationService {
     };
     const [count, docs] = await Promise.all([
       this.nofiticationModel.countDocuments(queryOption),
-      this.nofiticationModel
-        .find(queryOption)
-        .skip(pagination.skip)
-        .limit(pagination.limit),
+      this.nofiticationModel.find(queryOption).skip(pagination.skip).limit(pagination.limit),
     ]);
 
     return returnMeta(docs, pagination.page, pagination.limit, count);

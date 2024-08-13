@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Param,
-  Delete,
-  Query,
-  UseGuards,
-  Req,
-} from '@nestjs/common';
+import { Controller, Get, Post, Param, Delete, Query, UseGuards, Req } from '@nestjs/common';
 import { Request } from 'express';
 
 import { NotificationService } from '../services/notification.service';

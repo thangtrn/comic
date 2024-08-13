@@ -129,9 +129,7 @@ export class ChapterService {
     const docChapter = doc.toJSON();
 
     // for notify
-    const docInfo = await this.comicService.getListUserFollow(
-      chapter.comic as Types.ObjectId,
-    );
+    const docInfo = await this.comicService.getListUserFollow(chapter.comic as Types.ObjectId);
 
     this.eventEmitter.emit('notification.created', NotifyType.NewChapter, {
       userIds: docInfo.userIds,

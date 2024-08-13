@@ -2,8 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import NotifyType from '~/shared/enums/notification.enum';
 
-export type NotificationTemplateDocument =
-  HydratedDocument<NotificationTemplate>;
+export type NotificationTemplateDocument = HydratedDocument<NotificationTemplate>;
 
 @Schema({
   timestamps: true,
@@ -19,5 +18,4 @@ export class NotificationTemplate {
   type: NotifyType;
 }
 
-export const NotificationTemplateSchema =
-  SchemaFactory.createForClass(NotificationTemplate);
+export const NotificationTemplateSchema = SchemaFactory.createForClass(NotificationTemplate);

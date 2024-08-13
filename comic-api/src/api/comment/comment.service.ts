@@ -1,9 +1,5 @@
 import { Model, Types, ObjectId } from 'mongoose';
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { CreateCommentDto } from './dtos/create-comment.dto';
@@ -17,9 +13,7 @@ import checkUserPermission from '~/helpers/checkUserPermission';
 
 @Injectable()
 export class CommentService {
-  constructor(
-    @InjectModel(Comment.name) private commentModel: Model<Comment>,
-  ) {}
+  constructor(@InjectModel(Comment.name) private commentModel: Model<Comment>) {}
 
   async create(userId: Types.ObjectId, comment: CreateCommentDto) {
     const doc = await this.commentModel.create({ user: userId, ...comment });
@@ -33,10 +27,7 @@ export class CommentService {
   async getByComicId(comicId: Types.ObjectId, pagination: PaginationQueryDto) {
     const [count, docs] = await Promise.all([
       this.commentModel.countDocuments({ comic: comicId }),
-      this.commentModel
-        .find({ comic: comicId })
-        .skip(pagination.skip)
-        .limit(pagination.limit),
+      this.commentModel.find({ comic: comicId }).skip(pagination.skip).limit(pagination.limit),
     ]);
 
     return returnMeta(docs, pagination.page, pagination.limit, count);
@@ -46,9 +37,7 @@ export class CommentService {
     const doc = (await this.commentModel.findById(comment._id))?.toJSON();
 
     if (!doc) {
-      throw new NotFoundException(
-        'Not found comment with _id = ' + comment._id,
-      );
+      throw new NotFoundException('Not found comment with _id = ' + comment._id);
     }
 
     checkUserPermission(user._id, doc.user as Types.ObjectId, user.role);

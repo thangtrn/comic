@@ -7,10 +7,7 @@ import { Comic, ComicSchema } from '~/schemas/comic.schema';
 import { ChapterModule } from '~/api/chapter/chapter.module';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: Comic.name, schema: ComicSchema }]),
-    ChapterModule,
-  ],
+  imports: [MongooseModule.forFeature([{ name: Comic.name, schema: ComicSchema }]), ChapterModule],
   providers: [ComicService],
   controllers: [ComicController],
   exports: [ComicService],

@@ -1,13 +1,4 @@
-import {
-  Get,
-  Put,
-  Post,
-  Delete,
-  Param,
-  Controller,
-  Body,
-  UseGuards,
-} from '@nestjs/common';
+import { Get, Put, Post, Delete, Param, Controller, Body, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Roles } from '~/shared/decorators/roles';

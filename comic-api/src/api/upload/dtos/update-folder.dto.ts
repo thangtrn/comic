@@ -1,12 +1,6 @@
 import { Types } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsMongoId,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  ValidateIf,
-} from 'class-validator';
+import { IsMongoId, IsNotEmpty, IsOptional, IsString, ValidateIf } from 'class-validator';
 import { OptionalObjectId } from '~/shared/decorators/validate-mongo-id';
 
 export class UpdateFolderDto {

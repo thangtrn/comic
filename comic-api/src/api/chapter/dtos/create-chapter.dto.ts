@@ -3,10 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 import State from '~/shared/enums/state.enum';
-import {
-  OptionalObjectId,
-  TransformMongoObjectId,
-} from '~/shared/decorators/validate-mongo-id';
+import { OptionalObjectId, TransformMongoObjectId } from '~/shared/decorators/validate-mongo-id';
 
 export class CreateChapterDto {
   @ApiProperty({

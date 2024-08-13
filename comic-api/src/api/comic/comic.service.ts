@@ -22,10 +22,7 @@ export class ComicService {
     };
     const [count, docs] = await Promise.all([
       this.comicModel.countDocuments(searchOption),
-      this.comicModel
-        .find(searchOption)
-        .skip(comicQuery.skip)
-        .limit(comicQuery.limit),
+      this.comicModel.find(searchOption).skip(comicQuery.skip).limit(comicQuery.limit),
     ]);
 
     return returnMeta(docs, comicQuery.page, comicQuery.limit, count);
@@ -156,9 +153,7 @@ export class ComicService {
     return {
       comicId: docs?.[0]?._id,
       name: docs?.[0]?.name,
-      userIds: docs?.[0]?.follows?.map(
-        (item: { user: Types.ObjectId }) => item.user,
-      ),
+      userIds: docs?.[0]?.follows?.map((item: { user: Types.ObjectId }) => item.user),
     };
   }
 }

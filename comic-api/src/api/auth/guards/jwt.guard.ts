@@ -1,10 +1,5 @@
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
-import {
-  ExecutionContext,
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '~/shared/decorators/public';
@@ -58,17 +53,11 @@ export default class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   private isPublicRoute(context: ExecutionContext): boolean {
-    return this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    return this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [context.getHandler(), context.getClass()]);
   }
 
   private hasRequiredRoles(context: ExecutionContext, request: any): boolean {
-    const requiredRoles = this.reflector.getAllAndMerge<Role[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredRoles = this.reflector.getAllAndMerge<Role[]>(ROLES_KEY, [context.getHandler(), context.getClass()]);
 
     if (request?.user?.role === Role.Admin) {
       return true;

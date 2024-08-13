@@ -17,6 +17,7 @@ import { ChapterModule } from '~/api/chapter/chapter.module';
 import { CommentModule } from '~/api/comment/comment.module';
 import { FollowModule } from '~/api/follow/follow.module';
 import { NotificationModule } from '~/api/notification/notification.module';
+import { AppGateWay } from './app.gateway';
 
 @Module({
   imports: [
@@ -54,6 +55,6 @@ import { NotificationModule } from '~/api/notification/notification.module';
     NotificationModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [AppGateWay],
 })
 export class AppModule {}

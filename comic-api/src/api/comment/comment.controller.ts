@@ -1,15 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Delete,
-  Put,
-  Query,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { CommentService } from './comment.service';
@@ -31,10 +20,7 @@ export class CommentController {
 
   @Public()
   @Get('/:comicId')
-  getByComicId(
-    @Param() comment: GetCommentByComicIdDto,
-    @Query() pagination: PaginationQueryDto,
-  ) {
+  getByComicId(@Param() comment: GetCommentByComicIdDto, @Query() pagination: PaginationQueryDto) {
     return this.commentService.getByComicId(comment.comicId, pagination);
   }
 

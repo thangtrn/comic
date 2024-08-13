@@ -113,9 +113,7 @@ export class UploadService {
       },
       {
         $set: {
-          parentFolder: files?.parentFolder
-            ? new Types.ObjectId(files.parentFolder)
-            : null,
+          parentFolder: files?.parentFolder ? new Types.ObjectId(files.parentFolder) : null,
         },
       },
       {
@@ -140,11 +138,9 @@ export class UploadService {
     });
 
     const unlinkPromises = docs.map((mediaFile) =>
-      fs.promises
-        .unlink(join(mediaFile.destination, mediaFile.fileName))
-        .catch((err) => {
-          console.error(`Error deleting file ${mediaFile.fileName}:`, err);
-        }),
+      fs.promises.unlink(join(mediaFile.destination, mediaFile.fileName)).catch((err) => {
+        console.error(`Error deleting file ${mediaFile.fileName}:`, err);
+      }),
     );
 
     await Promise.all(unlinkPromises);

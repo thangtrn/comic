@@ -5,14 +5,8 @@ import { NotificationService } from './services/notification.service';
 import { NotificationController } from './controllers/notification.controller';
 import { NotificationTemplateController } from './controllers/notification-template.controller';
 
-import {
-  Notification,
-  NotificationSchema,
-} from '~/schemas/notification.schema';
-import {
-  NotificationTemplate,
-  NotificationTemplateSchema,
-} from '~/schemas/notification-template.schema';
+import { Notification, NotificationSchema } from '~/schemas/notification.schema';
+import { NotificationTemplate, NotificationTemplateSchema } from '~/schemas/notification-template.schema';
 import { NotificationTemplateService } from './services/notification-template.service';
 import { NotificationListener } from './notification.listener';
 
@@ -24,10 +18,6 @@ import { NotificationListener } from './notification.listener';
     ]),
   ],
   controllers: [NotificationController, NotificationTemplateController],
-  providers: [
-    NotificationService,
-    NotificationTemplateService,
-    NotificationListener,
-  ],
+  providers: [NotificationService, NotificationTemplateService, NotificationListener],
 })
 export class NotificationModule {}

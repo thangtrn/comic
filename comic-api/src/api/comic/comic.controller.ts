@@ -1,14 +1,4 @@
-import {
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  Controller,
-  UseGuards,
-  Query,
-} from '@nestjs/common';
+import { Get, Post, Put, Delete, Body, Param, Controller, UseGuards, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { Roles } from '~/shared/decorators/roles';
@@ -48,10 +38,7 @@ export class ComicController {
 
   @Public()
   @Get('/:comicSlug/chapter/:chapterSlug')
-  async getChapterBySlug(
-    @Param('comicSlug') comicSlug: string,
-    @Param('chapterSlug') chapterSlug: string,
-  ) {
+  async getChapterBySlug(@Param('comicSlug') comicSlug: string, @Param('chapterSlug') chapterSlug: string) {
     return await this.chapterService.getChapterBySlug(comicSlug, chapterSlug);
   }
 

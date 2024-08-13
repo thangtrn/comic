@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Put,
-  Param,
-  Delete,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, Query, UseGuards } from '@nestjs/common';
 
 import { CreateNotificationTemplateDto } from '../dtos/create-notification-template.dto';
 import { UpdateNotificationTemplateDto } from '../dtos/update-notification-template.dto';
@@ -26,9 +16,7 @@ import { NotificationTemplateService } from '../services/notification-template.s
 @UseGuards(JwtAuthGuard)
 @Roles(Role.Admin)
 export class NotificationTemplateController {
-  constructor(
-    private readonly notificationTempateService: NotificationTemplateService,
-  ) {}
+  constructor(private readonly notificationTempateService: NotificationTemplateService) {}
 
   // Admin
   @Get('/')

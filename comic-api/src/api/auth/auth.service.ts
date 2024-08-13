@@ -33,10 +33,7 @@ export class AuthService {
     return bcrypt.hash(password, 12);
   }
 
-  private async comparePassword(
-    password: string,
-    hashPassword: string,
-  ): Promise<boolean> {
+  private async comparePassword(password: string, hashPassword: string): Promise<boolean> {
     return bcrypt.compare(password, hashPassword);
   }
 
@@ -75,16 +72,8 @@ export class AuthService {
 
     // Set tokens to whitelist
     await Promise.all([
-      this.cacheManager.set(
-        redisAccessTokenKey(accessToken),
-        'valid',
-        ACCESS_TOKEN_TTL,
-      ),
-      this.cacheManager.set(
-        redisRefreshTokenKey(refreshToken),
-        'valid',
-        REFRESH_TOKEN_TTL,
-      ),
+      this.cacheManager.set(redisAccessTokenKey(accessToken), 'valid', ACCESS_TOKEN_TTL),
+      this.cacheManager.set(redisRefreshTokenKey(refreshToken), 'valid', REFRESH_TOKEN_TTL),
     ]);
 
     return {
@@ -112,11 +101,7 @@ export class AuthService {
     await this.cacheManager.del(redisAccessTokenKey(oldAccessToken));
 
     // Set new access token
-    await this.cacheManager.set(
-      redisAccessTokenKey(accessToken),
-      'valid',
-      ACCESS_TOKEN_TTL,
-    );
+    await this.cacheManager.set(redisAccessTokenKey(accessToken), 'valid', ACCESS_TOKEN_TTL);
 
     return accessToken;
   }

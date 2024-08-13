@@ -43,10 +43,7 @@ async function bootstrap() {
     .addTag('Chapter', 'Enpoints to manipulate chapter data')
     .addTag('Upload', 'Enpoints to manipulate files and folder action')
     .addTag('Notification', 'Enpoints to manipulate notification data')
-    .addTag(
-      'Notification template',
-      'Enpoints to manipulate notification template data',
-    )
+    .addTag('Notification template', 'Enpoints to manipulate notification template data')
     .addTag('Follow', 'Enpoints to manipulate follow data')
     .addTag('Comment', 'Enpoints to manipulate comment data')
     .addTag('User', 'Enpoints to manipulate user data')
@@ -64,9 +61,7 @@ async function bootstrap() {
 
   // Listening
   await app.listen(appPort, () => {
-    console.log(
-      `🚀 ~ Application is running on: http://localhost:${appPort}/api-docs`,
-    );
+    console.log(`🚀 ~ Application is running on: http://localhost:${appPort}/api-docs`);
   });
 }
 bootstrap();

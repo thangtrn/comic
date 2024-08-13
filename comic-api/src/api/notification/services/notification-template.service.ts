@@ -24,10 +24,7 @@ export class NotificationTemplateService {
   async getAllTemplate(pagination: PaginationQueryDto) {
     const [count, docs] = await Promise.all([
       this.nofiticationTemplateModel.countDocuments(),
-      this.nofiticationTemplateModel
-        .find()
-        .skip(pagination.skip)
-        .limit(pagination.limit),
+      this.nofiticationTemplateModel.find().skip(pagination.skip).limit(pagination.limit),
     ]);
 
     return returnMeta(docs, pagination.page, pagination.limit, count);
@@ -45,9 +42,7 @@ export class NotificationTemplateService {
     );
 
     if (!doc) {
-      throw new NotFoundException(
-        'Not notification template with _id = ' + _id,
-      );
+      throw new NotFoundException('Not notification template with _id = ' + _id);
     }
     return doc;
   }
@@ -56,9 +51,7 @@ export class NotificationTemplateService {
     const doc = await this.nofiticationTemplateModel.findByIdAndDelete(_id);
 
     if (!doc) {
-      throw new NotFoundException(
-        'Not notification template with _id = ' + _id,
-      );
+      throw new NotFoundException('Not notification template with _id = ' + _id);
     }
     return doc;
   }

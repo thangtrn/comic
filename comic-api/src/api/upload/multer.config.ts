@@ -12,11 +12,7 @@ const allowedFileExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.mp4', '.mp3'];
 export const multerOptions: MulterOptions = {
   storage: diskStorage({
     destination: 'public/uploads',
-    filename: (
-      _: Request,
-      file: Express.Multer.File,
-      callback: (error: Error | null, filename: string) => void,
-    ) => {
+    filename: (_: Request, file: Express.Multer.File, callback: (error: Error | null, filename: string) => void) => {
       const uniqueSuffix = randomUUID();
       const fileExtName = extname(file.originalname);
       const fileBaseName = basename(file.originalname, fileExtName);
@@ -24,20 +20,12 @@ export const multerOptions: MulterOptions = {
       callback(null, fileName);
     },
   }),
-  fileFilter: (
-    _: Request,
-    file: Express.Multer.File,
-    callback: FileFilterCallback,
-  ) => {
+  fileFilter: (_: Request, file: Express.Multer.File, callback: FileFilterCallback) => {
     const ext = extname(file.originalname).toLowerCase();
     if (allowedFileExtensions.includes(ext)) {
       callback(null, true);
     } else {
-      callback(
-        new BadRequestException(
-          'Only jpg, jpeg, png, gif, mp4, mp3 files are allowed',
-        ),
-      );
+      callback(new BadRequestException('Only jpg, jpeg, png, gif, mp4, mp3 files are allowed'));
     }
   },
 };

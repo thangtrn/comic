@@ -1,9 +1,4 @@
-import {
-  ExecutionContext,
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { redisRefreshTokenKey } from '../auth.service';
@@ -27,9 +22,7 @@ export default class JwtRefreshAuthGuard extends AuthGuard('jwt-refresh') {
       throw new UnauthorizedException('Authorization token is missing');
     }
 
-    const tokenStatus = await this.cacheManager.get(
-      redisRefreshTokenKey(token),
-    );
+    const tokenStatus = await this.cacheManager.get(redisRefreshTokenKey(token));
 
     if (!tokenStatus || tokenStatus === 'revoked') {
       throw new UnauthorizedException('Token has been revoked or is invalid');

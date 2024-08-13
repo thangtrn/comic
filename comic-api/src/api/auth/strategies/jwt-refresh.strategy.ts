@@ -5,10 +5,7 @@ import { UserService } from '~/api/user/user.service';
 import { JwtPayload } from '~/shared/types/jwt-payload.type';
 
 @Injectable()
-export default class JwtRefreshStrategy extends PassportStrategy(
-  Strategy,
-  'jwt-refresh',
-) {
+export default class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(private readonly userService: UserService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

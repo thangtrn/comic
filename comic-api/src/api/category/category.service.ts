@@ -9,9 +9,7 @@ import returnMeta from '~/helpers/metadata';
 
 @Injectable()
 export class CategoryService {
-  constructor(
-    @InjectModel(Category.name) private categoryModel: Model<Category>,
-  ) {}
+  constructor(@InjectModel(Category.name) private categoryModel: Model<Category>) {}
 
   async getAll(pagination: PaginationQueryDto) {
     const [count, docs] = await Promise.all([

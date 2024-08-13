@@ -38,9 +38,7 @@ export class UploadController {
 
   @Get('/assets')
   async getFilesAndFoldersByParentFolder(@Query() assetsQuery: QueryAssetsDto) {
-    return await this.uploadService.getFilesAndFoldersByParentFolderId(
-      assetsQuery,
-    );
+    return await this.uploadService.getFilesAndFoldersByParentFolderId(assetsQuery);
   }
 
   // file handdler
@@ -68,10 +66,7 @@ export class UploadController {
     },
   })
   @UseInterceptors(FilesInterceptor('files', undefined, multerOptions))
-  async uploadFiles(
-    @UploadedFiles() files: Array<Express.Multer.File>,
-    @Body() fileDto: CreateFileDto,
-  ) {
+  async uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>, @Body() fileDto: CreateFileDto) {
     if (!files || files?.length <= 0) {
       throw new BadRequestException('Not found resource to upload.');
     }
