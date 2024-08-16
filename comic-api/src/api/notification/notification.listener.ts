@@ -20,12 +20,14 @@ export class NotificationListener {
       return;
     }
     const docTemplate = doc.toJSON();
-    const insertDatas: CreateNotificationDto[] = (data?.userIds as Types.ObjectId[])?.map((userId) => ({
-      user: userId,
-      name: this.replacePlaceholders(docTemplate.name, data),
-      content: this.replacePlaceholders(docTemplate.content, data),
-      type: type,
-    }));
+    const insertDatas: CreateNotificationDto[] = (data?.userIds as Types.ObjectId[])?.map(
+      (userId) => ({
+        user: userId,
+        name: this.replacePlaceholders(docTemplate.name, data),
+        content: this.replacePlaceholders(docTemplate.content, data),
+        type: type,
+      }),
+    );
     if (insertDatas.length > 0) {
       await this.notificationService.createMany(insertDatas);
     }

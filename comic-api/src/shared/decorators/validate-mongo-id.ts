@@ -9,7 +9,9 @@ export const OptionalObjectId = (propertyName: string) =>
     ValidateIf((o) => o[propertyName] && Types.ObjectId.isValid(o[propertyName])),
     Transform(({ value }) => {
       if (Array.isArray(value)) {
-        return value.map((v) => (!v || !Types.ObjectId.isValid(v) ? null : new Types.ObjectId(v as string)));
+        return value.map((v) =>
+          !v || !Types.ObjectId.isValid(v) ? null : new Types.ObjectId(v as string),
+        );
       }
       return !value || !Types.ObjectId.isValid(value) ? null : new Types.ObjectId(value as string);
     }),

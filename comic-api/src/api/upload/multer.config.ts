@@ -12,7 +12,11 @@ const allowedFileExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.mp4', '.mp3'];
 export const multerOptions: MulterOptions = {
   storage: diskStorage({
     destination: 'public/uploads',
-    filename: (_: Request, file: Express.Multer.File, callback: (error: Error | null, filename: string) => void) => {
+    filename: (
+      _: Request,
+      file: Express.Multer.File,
+      callback: (error: Error | null, filename: string) => void,
+    ) => {
       const uniqueSuffix = randomUUID();
       const fileExtName = extname(file.originalname);
       const fileBaseName = basename(file.originalname, fileExtName);

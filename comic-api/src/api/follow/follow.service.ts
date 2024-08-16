@@ -11,7 +11,9 @@ export class FollowService {
   constructor(@InjectModel(Follow.name) private followModel: Model<Follow>) {}
 
   async getByComicId(comicId: Types.ObjectId) {
-    return await this.followModel.find({ comic: comicId }).populate({ path: 'user', select: 'name email' });
+    return await this.followModel
+      .find({ comic: comicId })
+      .populate({ path: 'user', select: 'name email' });
   }
 
   async create(userId: Types.ObjectId, follow: CreateFollowDto) {
@@ -29,7 +31,9 @@ export class FollowService {
       { new: true },
     );
     if (!doc) {
-      throw new NotFoundException(`Not found follow with comicId = ${follow.comic} and userId = ${userId}.`);
+      throw new NotFoundException(
+        `Not found follow with comicId = ${follow.comic} and userId = ${userId}.`,
+      );
     }
     return doc;
   }
@@ -40,7 +44,9 @@ export class FollowService {
       user: userId,
     });
     if (!doc) {
-      throw new NotFoundException(`Not found follow with comicId = ${follow.comic} and userId = ${userId}.`);
+      throw new NotFoundException(
+        `Not found follow with comicId = ${follow.comic} and userId = ${userId}.`,
+      );
     }
     return doc;
   }

@@ -66,7 +66,10 @@ export class UploadController {
     },
   })
   @UseInterceptors(FilesInterceptor('files', undefined, multerOptions))
-  async uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>, @Body() fileDto: CreateFileDto) {
+  async uploadFiles(
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Body() fileDto: CreateFileDto,
+  ) {
     if (!files || files?.length <= 0) {
       throw new BadRequestException('Not found resource to upload.');
     }
