@@ -22,10 +22,10 @@ export class User {
   notify: boolean;
 
   @Prop({ type: Boolean })
-  fcmToken: boolean;
+  fcmToken: string;
 
   @Prop({ type: Boolean, default: false })
-  confirmed: boolean;
+  verify: boolean;
 
   @Prop({
     type: String,

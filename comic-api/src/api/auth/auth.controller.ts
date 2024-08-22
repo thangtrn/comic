@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
@@ -52,5 +52,10 @@ export class AuthController {
   async refreshTokens(@Req() req: Request, @Body() token: RefreshTokenDto) {
     const user: any = req.user;
     return await this.authService.refreshTokens(user?._id, token.oldAccessToken);
+  }
+
+  @Get('/verify')
+  async verify(@Query('token') token: string) {
+    return await this.authService.verify(token);
   }
 }

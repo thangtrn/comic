@@ -1,9 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+
 import { User } from '~/schemas/user.schema';
 import { RegisterDto } from '~/api/auth/dtos/register.dto';
-import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { UpdateUserDto } from './dtos/update-user.dto';
+import removeNullUndefinedFields from '~/utils/removeNullUndefinedFields';
 
 @Injectable()
 export class UserService {
@@ -17,15 +20,29 @@ export class UserService {
   }
 
   async register(user: RegisterDto) {
-    return await this.userModel.create(user);
+    const { password, ...userWithoutPassword } = (await this.userModel.create(user)).toJSON();
+    return userWithoutPassword;
   }
 
   async findUserById(_id: Types.ObjectId | string) {
-    return await this.userModel.findById(_id);
+    return await this.userModel.findById(_id).select('-password');
   }
 
-  // ----------------- -----------------
-  async testRedis() {
-    return await this.cacheManager.store.keys('refreshToken:*');
+  async update(user: UpdateUserDto) {
+    const { _id, ...userWithoutId } = user;
+    const doc = await this.userModel
+      .findByIdAndUpdate(
+        _id,
+        {
+          $set: removeNullUndefinedFields(userWithoutId),
+        },
+        { new: true },
+      )
+      .select('-password');
+
+    if (!doc) {
+      throw new NotFoundException('Not found user with _id = ' + doc._id);
+    }
+    return doc;
   }
 }

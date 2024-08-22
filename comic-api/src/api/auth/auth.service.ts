@@ -1,19 +1,24 @@
 import { ConfigService } from '@nestjs/config';
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { MailerService } from '@nestjs-modules/mailer';
+
 import { UserService } from '~/api/user/user.service';
 import { UserDocument } from '~/schemas/user.schema';
 import { RegisterDto } from './dtos/register.dto';
 import { JwtPayload } from '~/shared/types/jwt-payload.type';
 import { LogoutDto } from './dtos/logout.dto';
-import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Types } from 'mongoose';
 
 const ACCESS_TOKEN_EXPIRY = 7 * 24 * 60 * 60; // 7 days
 const REFRESH_TOKEN_EXPIRY = 90 * 24 * 60 * 60; // 90 days
 
 const ACCESS_TOKEN_TTL = ACCESS_TOKEN_EXPIRY * 1000;
 const REFRESH_TOKEN_TTL = REFRESH_TOKEN_EXPIRY * 1000;
+
+const VERIFY_TOKEN_EXPIRY_TIME = 60 * 60; // 5 minutes
 
 // ================== Redis Key Generation ====================
 export const redisAccessTokenKey = (token: string) => `accessToken:${token}`;
@@ -24,6 +29,7 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private readonly userService: UserService,
+    private readonly mailerService: MailerService,
     private configService: ConfigService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
@@ -37,10 +43,10 @@ export class AuthService {
     return bcrypt.compare(password, hashPassword);
   }
 
-  private async createToken(payload: JwtPayload): Promise<string> {
+  private async createToken(payload: JwtPayload, expiresIn = ACCESS_TOKEN_EXPIRY): Promise<string> {
     return this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_SECRET'),
-      expiresIn: ACCESS_TOKEN_EXPIRY,
+      expiresIn: expiresIn,
     });
   }
 
@@ -89,7 +95,23 @@ export class AuthService {
     }
 
     const hashedPassword = await this.hashPassword(user.password);
-    return this.userService.register({ ...user, password: hashedPassword });
+    const doc = await this.userService.register({ ...user, password: hashedPassword });
+
+    const token = await this.createToken({ userId: doc._id }, VERIFY_TOKEN_EXPIRY_TIME);
+
+    await this.mailerService.sendMail({
+      to: doc.email,
+      subject: 'Verify email',
+      template: 'verify-account',
+      context: {
+        name: doc.name,
+        verification_link:
+          this.configService.get<string>('APP_URL') + `/auth/verify?token=${token}`,
+        time: VERIFY_TOKEN_EXPIRY_TIME / 60,
+      },
+    });
+
+    return doc;
   }
 
   async refreshTokens(userId: string, oldAccessToken: string) {
@@ -112,5 +134,23 @@ export class AuthService {
       this.cacheManager.del(redisAccessTokenKey(accessToken)),
       this.cacheManager.del(redisRefreshTokenKey(refreshToken)),
     ]);
+  }
+
+  async verify(token: string) {
+    try {
+      if (!token) {
+        throw new BadRequestException('Invalid token.');
+      }
+      const { userId } = await this.jwtService.verifyAsync(token);
+
+      const doc = await this.userService.update({
+        _id: new Types.ObjectId(userId as string),
+        verify: true,
+      });
+
+      return doc;
+    } catch (error) {
+      throw new BadRequestException('Invalid token.');
+    }
   }
 }

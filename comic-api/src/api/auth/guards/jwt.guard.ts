@@ -1,5 +1,11 @@
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
-import { ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '~/shared/decorators/public';
@@ -29,6 +35,10 @@ export default class JwtAuthGuard extends AuthGuard('jwt') {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromRequest(request);
 
+    if (!this.isVerifyAccount(request)) {
+      throw new ForbiddenException("This account hasn't been verified");
+    }
+
     if (!token) {
       throw new UnauthorizedException('Authorization token is missing');
     }
@@ -57,6 +67,10 @@ export default class JwtAuthGuard extends AuthGuard('jwt') {
       context.getHandler(),
       context.getClass(),
     ]);
+  }
+
+  private isVerifyAccount(request: any) {
+    return request?.user?.verify;
   }
 
   private hasRequiredRoles(context: ExecutionContext, request: any): boolean {

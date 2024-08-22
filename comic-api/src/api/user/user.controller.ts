@@ -6,9 +6,4 @@ import { ApiTags } from '@nestjs/swagger';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @Get('/')
-  async getAllUser() {
-    return await this.userService.testRedis();
-  }
 }
