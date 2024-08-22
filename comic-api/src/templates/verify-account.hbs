@@ -1,0 +1,42 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Email Verification</title>
+    <style>
+      body { font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 0; }
+      .container { width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; border:
+      1px solid #dddddd; border-radius: 5px; padding: 20px; box-shadow: 0px 0px 5px rgba(0, 0, 0,
+      0.1); } .header { text-align: center; padding: 20px 0; } .header img { width: 100px; }
+      .content { text-align: center; padding: 20px 0; } .content h1 { font-size: 24px; color:
+      #333333; } .content p { font-size: 16px; color: #666666; line-height: 1.5; } .button {
+      display: inline-block; margin-top: 20px; } .button a { background-color: #5865f2; color:
+      #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 16px; }
+      .footer { text-align: center; font-size: 12px; color: #999999; padding: 20px 0; } .footer a {
+      color: #5865f2; text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      {{! <div class='header'>
+        <img src='' alt='Company Logo' />
+      </div> }}
+      <div class='content'>
+        <h1>Hey {{username}},</h1>
+        <p>Thanks for registering for an account on Comic app! Before we get started, we just need
+          to confirm that this is you. Click below to verify your email address:</p>
+        <div class='button'>
+          <a href='{{verification_link}}'>Verify Email</a>
+        </div>
+      </div>
+      <div class='footer'>
+        <p>Need help?
+          <a href='/'>Contact our support team</a>
+          or hit us up on Twitter
+          <a href='/'>@Comic</a>.<br />
+          Want to give us feedback? Let us know what you think on our
+          <a href='/'>feedback site</a>.</p>
+      </div>
+    </div>
+  </body>
+</html>
