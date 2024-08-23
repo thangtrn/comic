@@ -14,7 +14,7 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
-import { Roles } from '~/shared/decorators/roles';
+import { Secured } from '~/shared/decorators/roles';
 import Role from '~/shared/enums/role.enum';
 import JwtAuthGuard from '~/api/auth/guards/jwt.guard';
 
@@ -32,7 +32,7 @@ import { QueryAssetsDto } from './dtos/query-assets.dto';
 @Controller('/upload')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Roles(Role.Admin)
+@Secured(Role.Admin)
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 

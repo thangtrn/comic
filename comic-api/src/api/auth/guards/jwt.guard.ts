@@ -9,7 +9,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '~/shared/decorators/public';
-import { Roles, ROLES_KEY } from '~/shared/decorators/roles';
+import { Secured, SECURED_KEY } from '~/shared/decorators/roles';
 import Role from '~/shared/enums/role.enum';
 import { redisAccessTokenKey } from '../auth.service';
 
@@ -77,7 +77,7 @@ export default class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   private hasRequiredRoles(context: ExecutionContext, request: any): boolean {
-    const requiredRoles = this.reflector.getAllAndMerge<Role[]>(ROLES_KEY, [
+    const requiredRoles = this.reflector.getAllAndMerge<Role[]>(SECURED_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);

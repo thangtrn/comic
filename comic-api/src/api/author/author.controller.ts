@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { Roles } from '~/shared/decorators/roles';
+import { Secured } from '~/shared/decorators/roles';
 import { Public } from '~/shared/decorators/public';
 import Role from '~/shared/enums/role.enum';
 import JwtAuthGuard from '~/api/auth/guards/jwt.guard';
@@ -16,12 +16,12 @@ import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 @Controller('author')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Roles(Role.Admin)
+@Secured(Role.Admin)
 export class AuthorController {
   constructor(private readonly authorService: AuthorService) {}
 
   // @Public()
-  @Roles(Role.User)
+  @Secured(Role.User)
   @Get('/')
   async getAll(@Query() pagination: PaginationQueryDto) {
     return await this.authorService.getAll(pagination);

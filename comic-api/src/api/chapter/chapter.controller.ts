@@ -1,7 +1,7 @@
 import { Get, Put, Post, Delete, Param, Controller, Body, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { Roles } from '~/shared/decorators/roles';
+import { Secured } from '~/shared/decorators/roles';
 import { Public } from '~/shared/decorators/public';
 import Role from '~/shared/enums/role.enum';
 import JwtAuthGuard from '~/api/auth/guards/jwt.guard';
@@ -15,7 +15,7 @@ import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
 @Controller('chapter')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Roles(Role.Admin)
+@Secured(Role.Admin)
 export class ChapterController {
   constructor(private readonly chapterService: ChapterService) {}
 

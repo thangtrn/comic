@@ -6,7 +6,7 @@ import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 import JwtAuthGuard from '../../auth/guards/jwt.guard';
-import { Roles } from '~/shared/decorators/roles';
+import { Secured } from '~/shared/decorators/roles';
 import Role from '~/shared/enums/role.enum';
 import { NotificationTemplateService } from '../services/notification-template.service';
 
@@ -14,7 +14,7 @@ import { NotificationTemplateService } from '../services/notification-template.s
 @Controller('notification-template')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Roles(Role.Admin)
+@Secured(Role.Admin)
 export class NotificationTemplateController {
   constructor(private readonly notificationTempateService: NotificationTemplateService) {}
 

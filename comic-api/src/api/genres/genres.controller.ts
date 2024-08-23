@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 
-import { Roles } from '~/shared/decorators/roles';
+import { Secured } from '~/shared/decorators/roles';
 import Role from '~/shared/enums/role.enum';
 import JwtAuthGuard from '~/api/auth/guards/jwt.guard';
 
@@ -16,7 +16,7 @@ import { Public } from '~/shared/decorators/public';
 @Controller('/genres')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Roles(Role.Admin)
+@Secured(Role.Admin)
 export class GenresController {
   constructor(private readonly genresService: GenresService) {}
 

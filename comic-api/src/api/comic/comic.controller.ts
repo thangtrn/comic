@@ -1,7 +1,7 @@
 import { Get, Post, Put, Delete, Body, Param, Controller, UseGuards, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { Roles } from '~/shared/decorators/roles';
+import { Secured } from '~/shared/decorators/roles';
 import { Public } from '~/shared/decorators/public';
 import Role from '~/shared/enums/role.enum';
 import JwtAuthGuard from '~/api/auth/guards/jwt.guard';
@@ -17,7 +17,7 @@ import { QueryComicDto } from './dtos/query-comic.dto';
 @Controller('comic')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Roles(Role.Admin)
+@Secured(Role.Admin)
 export class ComicController {
   constructor(
     private readonly comicService: ComicService,
