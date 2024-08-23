@@ -1,28 +1,72 @@
-import { map } from 'rxjs/operators';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+
+import returnMeta from '~/helpers/metadata';
 import { Comic } from '~/schemas/comic.schema';
 import { CreateComicDto } from './dtos/create-comic.dto';
 import { UpdateComicDto } from './dtos/update-comic.dto';
 import { QueryComicDto } from './dtos/query-comic.dto';
 import removeNullUndefinedFields from '~/utils/removeNullUndefinedFields';
-import returnMeta from '~/helpers/metadata';
+import Sort from './enums/sort.enum';
 
 @Injectable()
 export class ComicService {
   constructor(@InjectModel(Comic.name) private comicModel: Model<Comic>) {}
 
   async getByQuery(comicQuery: QueryComicDto) {
-    const searchOption = {
-      name: {
-        $regex: `.*${comicQuery.search || ''}.*`,
-        $options: 'i',
-      },
+    const searchOption: any = {
+      $or: [
+        {
+          name: {
+            $regex: `.*${comicQuery.search || ''}.*`,
+            $options: 'i',
+          },
+        },
+        {
+          originName: {
+            $regex: `.*${comicQuery.search || ''}.*`,
+            $options: 'i',
+          },
+        },
+      ],
     };
+
+    if (comicQuery.status) {
+      searchOption.status = comicQuery.status;
+    }
+
+    if (comicQuery.genres && comicQuery.genres.length > 0) {
+      searchOption.genres = { $in: comicQuery.genres.map((genre) => new Types.ObjectId(genre)) };
+    }
+
+    const sortOption: any = {};
+    switch (comicQuery.sortBy) {
+      case Sort.CreatedAtAsc:
+        sortOption.createdAt = 1;
+        break;
+      case Sort.CreatedAtDesc:
+        sortOption.createdAt = -1;
+        break;
+      case Sort.UpdatedAtAsc:
+        sortOption.updatedAt = 1;
+        break;
+      case Sort.UpdatedAtDesc:
+        sortOption.updatedAt = -1;
+        break;
+      default:
+        sortOption.createdAt = -1;
+    }
+
     const [count, docs] = await Promise.all([
       this.comicModel.countDocuments(searchOption),
-      this.comicModel.find(searchOption).skip(comicQuery.skip).limit(comicQuery.limit),
+      this.comicModel
+        .find(searchOption)
+        .populate({ path: 'authors', model: 'Author' })
+        .populate({ path: 'genres', model: 'Genres' })
+        .sort(sortOption)
+        .skip(comicQuery.skip)
+        .limit(comicQuery.limit),
     ]);
 
     return returnMeta(docs, comicQuery.page, comicQuery.limit, count);

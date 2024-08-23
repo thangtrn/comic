@@ -2,9 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import State from '~/shared/enums/state.enum';
 import { Media } from './media.schema';
-import Status from '~/shared/enums/status.enum';
 import { Author } from './author.schema';
 import { Genres } from './genres.schema';
+import Status from '~/api/comic/enums/status.enum';
 
 export type ComicDocument = HydratedDocument<Comic>;
 
@@ -39,7 +39,7 @@ export class Comic {
   })
   slug: string;
 
-  @Prop({ type: Number, enum: Status, default: Status.Process })
+  @Prop({ type: String, enum: Status, default: Status.Process })
   status: Status;
 
   @Prop({

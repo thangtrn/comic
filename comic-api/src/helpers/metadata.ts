@@ -7,6 +7,8 @@ export default function returnMeta<T = any>(data: T[], page: number, limit: numb
       page: page,
       limit: limit,
       total: Math.ceil(count / limit),
+      totalItemPage: data.length,
+      totalItemCount: count,
     },
   };
 }

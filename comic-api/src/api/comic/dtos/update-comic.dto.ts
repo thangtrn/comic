@@ -4,7 +4,7 @@ import { IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-valid
 import { Types } from 'mongoose';
 import { OptionalObjectId } from '~/shared/decorators/validate-mongo-id';
 import State from '~/shared/enums/state.enum';
-import Status from '~/shared/enums/status.enum';
+import Status from '../enums/status.enum';
 
 export class UpdateComicDto {
   @ApiProperty({

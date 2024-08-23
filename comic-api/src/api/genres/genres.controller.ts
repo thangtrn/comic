@@ -22,13 +22,13 @@ export class GenresController {
 
   @Public()
   @ApiQuery({
-    name: 'tag',
+    name: 'type',
     type: String,
     required: false,
   })
   @Get('/')
-  async getAll(@Query() pagination?: PaginationQueryDto, @Query('tag') tag?: string) {
-    return await this.genresService.getAll(pagination, tag);
+  async getAll(@Query() pagination?: PaginationQueryDto, @Query('type') type?: string) {
+    return await this.genresService.getAll(pagination, type);
   }
 
   @Post('/')

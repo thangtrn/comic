@@ -11,7 +11,6 @@ import { UpdateFolderDto } from './dtos/update-folder.dto';
 import { CreateFileDto } from './dtos/create-file.dto';
 import { UpdateFileDto } from './dtos/update-file.dto';
 import removeNullUndefinedFields from '~/utils/removeNullUndefinedFields';
-import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 import returnMeta from '~/helpers/metadata';
 import { QueryAssetsDto } from './dtos/query-assets.dto';
 

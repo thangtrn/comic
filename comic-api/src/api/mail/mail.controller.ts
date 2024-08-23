@@ -1,6 +1,7 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { MailService } from './mail.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+import { MailService } from './mail.service';
 import JwtAuthGuard from '../auth/guards/jwt.guard';
 import { Secured } from '~/shared/decorators/roles';
 import Role from '~/shared/enums/role.enum';

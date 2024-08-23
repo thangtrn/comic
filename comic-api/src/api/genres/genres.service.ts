@@ -12,8 +12,8 @@ import returnMeta from '~/helpers/metadata';
 export class GenresService {
   constructor(@InjectModel(Genres.name) private genresModel: Model<Genres>) {}
 
-  async getAll(pagination: PaginationQueryDto, tag: string) {
-    if (tag === 'all') {
+  async getAll(pagination: PaginationQueryDto, type: string) {
+    if (type === 'all') {
       const docs = this.genresModel.find({});
       return docs;
     }

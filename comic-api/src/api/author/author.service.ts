@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+
 import { Author } from '~/schemas/author.schema';
 import { CreateAuthorDto } from './dtos/create-author.dto';
 import { UpdateAuthorDto } from './dtos/update-author.dto';
@@ -11,7 +12,12 @@ import returnMeta from '~/helpers/metadata';
 export class AuthorService {
   constructor(@InjectModel(Author.name) private authorModel: Model<Author>) {}
 
-  async getAll(pagination: PaginationQueryDto) {
+  async getAll(pagination: PaginationQueryDto, type: string) {
+    if (type === 'all') {
+      const docs = this.authorModel.find({});
+      return docs;
+    }
+
     const [docs, count] = await Promise.all([
       this.authorModel.find().skip(pagination.skip).limit(pagination.limit),
       this.authorModel.countDocuments(),

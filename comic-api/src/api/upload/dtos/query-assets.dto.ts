@@ -6,7 +6,7 @@ import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 export class QueryAssetsDto extends PaginationQueryDto {
   @ApiProperty({
     type: String,
-    example: 'string',
+    example: '',
     required: false,
     nullable: true,
   })

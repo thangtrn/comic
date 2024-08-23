@@ -1,6 +1,6 @@
 enum Status {
-  New = 'new',
-  Hot = 'hot',
+  Process = 'process',
+  Done = 'done',
 }
 
 export default Status;
