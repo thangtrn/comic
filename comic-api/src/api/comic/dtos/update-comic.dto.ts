@@ -53,13 +53,13 @@ export class UpdateComicDto {
     default: [],
   })
   @OptionalObjectId('authors')
-  authors?: string[] | Types.ObjectId[];
+  authors?: Types.ObjectId[] | string[];
 
   @ApiProperty({
     default: [],
   })
-  @OptionalObjectId('categories')
-  categories?: string[] | Types.ObjectId[];
+  @OptionalObjectId('genres')
+  genres?: Types.ObjectId[] | string[];
 
   @IsOptional()
   @IsEnum(Status)

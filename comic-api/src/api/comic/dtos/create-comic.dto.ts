@@ -49,6 +49,6 @@ export class CreateComicDto {
   @ApiProperty({
     default: [],
   })
-  @OptionalObjectId('categories')
-  categories?: string[] | Types.ObjectId[];
+  @OptionalObjectId('genres')
+  genres?: string[] | Types.ObjectId[];
 }

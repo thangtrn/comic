@@ -18,7 +18,7 @@ const REFRESH_TOKEN_EXPIRY = 90 * 24 * 60 * 60; // 90 days
 const ACCESS_TOKEN_TTL = ACCESS_TOKEN_EXPIRY * 1000;
 const REFRESH_TOKEN_TTL = REFRESH_TOKEN_EXPIRY * 1000;
 
-const VERIFY_TOKEN_EXPIRY_TIME = 60 * 60; // 5 minutes
+const VERIFY_TOKEN_EXPIRY_TIME = 5 * 60; // 5 minutes
 
 // ================== Redis Key Generation ====================
 export const redisAccessTokenKey = (token: string) => `accessToken:${token}`;
@@ -54,6 +54,30 @@ export class AuthService {
     return this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_REFRESH'),
       expiresIn: REFRESH_TOKEN_EXPIRY,
+    });
+  }
+
+  private async sendVeriryMail({
+    userId,
+    email,
+    name,
+  }: {
+    userId: Types.ObjectId;
+    email: string | string[];
+    name: string;
+  }) {
+    const token = await this.createToken({ userId: userId }, VERIFY_TOKEN_EXPIRY_TIME);
+
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Verify email',
+      template: 'verify-account',
+      context: {
+        name: name,
+        verification_link:
+          this.configService.get<string>('APP_URL') + `/auth/verify?token=${token}`,
+        time: VERIFY_TOKEN_EXPIRY_TIME / 60,
+      },
     });
   }
 
@@ -94,22 +118,12 @@ export class AuthService {
       throw new ConflictException('Email already exists');
     }
 
+    // hash password and save db
     const hashedPassword = await this.hashPassword(user.password);
     const doc = await this.userService.register({ ...user, password: hashedPassword });
 
-    const token = await this.createToken({ userId: doc._id }, VERIFY_TOKEN_EXPIRY_TIME);
-
-    await this.mailerService.sendMail({
-      to: doc.email,
-      subject: 'Verify email',
-      template: 'verify-account',
-      context: {
-        name: doc.name,
-        verification_link:
-          this.configService.get<string>('APP_URL') + `/auth/verify?token=${token}`,
-        time: VERIFY_TOKEN_EXPIRY_TIME / 60,
-      },
-    });
+    // send mail
+    await this.sendVeriryMail({ userId: doc._id, email: doc.email, name: doc.name });
 
     return doc;
   }
@@ -152,5 +166,23 @@ export class AuthService {
     } catch (error) {
       throw new BadRequestException('Invalid token.');
     }
+  }
+
+  async resentVerify(email: string) {
+    const doc = await this.userService.findUserByEmail(email);
+
+    if (!doc) {
+      throw new BadRequestException(`Not found user with email ${email}`);
+    }
+    const { password, ...userWithoutPassword } = doc.toJSON();
+
+    // send mail
+    await this.sendVeriryMail({
+      userId: userWithoutPassword._id,
+      email: userWithoutPassword.email,
+      name: userWithoutPassword.name,
+    });
+
+    return userWithoutPassword;
   }
 }

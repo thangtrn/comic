@@ -11,7 +11,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 
 import { AuthModule } from '~/api/auth/auth.module';
 import { UserModule } from '~/api/user/user.module';
-import { CategoryModule } from '~/api/category/category.module';
+import { GenresModule } from '~/api/genres/genres.module';
 import { UploadModule } from '~/api/upload/upload.module';
 import { ComicModule } from '~/api/comic/comic.module';
 import { AuthorModule } from '~/api/author/author.module';
@@ -67,7 +67,7 @@ import { MailModule } from '~/api/mail/mail.module';
     // another module
     AuthModule,
     UserModule,
-    CategoryModule,
+    GenresModule,
     AuthorModule,
     ComicModule,
     ChapterModule,

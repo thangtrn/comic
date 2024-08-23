@@ -37,10 +37,10 @@ export class ComicService {
       },
       {
         $lookup: {
-          from: 'categories',
+          from: 'genres',
           foreignField: '_id',
-          localField: 'categories',
-          as: 'categories',
+          localField: 'genres',
+          as: 'genres',
         },
       },
       {

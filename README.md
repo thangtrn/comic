@@ -17,8 +17,9 @@ To get started with the Comic API, follow these steps:
 
    ```
     #FOR COMMON APP
-    APP_URL =
     APP_PORT =
+    APP_URL =
+    APP_CLIENT_URL =
 
     # FOR DB
     MONGO_URI =

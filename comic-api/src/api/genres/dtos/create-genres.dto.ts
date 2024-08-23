@@ -2,9 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import State from '~/shared/enums/state.enum';
 
-export class CreateCategoryDto {
+export class CreateGenresDto {
   @ApiProperty({
-    default: 'Category name',
+    default: 'Genres name',
   })
   @IsString()
   @IsNotEmpty()

@@ -58,4 +58,9 @@ export class AuthController {
   async verify(@Query('token') token: string) {
     return await this.authService.verify(token);
   }
+
+  @Get('/resent-verify')
+  async resentVerify(@Query('email') email: string) {
+    return await this.authService.resentVerify(email);
+  }
 }

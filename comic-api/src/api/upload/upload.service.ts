@@ -165,7 +165,7 @@ export class UploadService {
     );
 
     if (!docs) {
-      throw new NotFoundException('Not found category with _id = ' + _id);
+      throw new NotFoundException('Not found genres with _id = ' + _id);
     }
 
     return docs;

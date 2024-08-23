@@ -49,7 +49,10 @@ export default class JwtAuthGuard extends AuthGuard('jwt') {
       throw new UnauthorizedException('Token has been revoked or is invalid');
     }
 
-    return this.hasRequiredRoles(context, request);
+    if (!this.hasRequiredRoles(context, request)) {
+      throw new ForbiddenException("You don't have permission to perform this action.");
+    }
+    return true;
   }
 
   private extractTokenFromRequest(request: any): string | null {

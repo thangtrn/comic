@@ -2,12 +2,12 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import State from '~/shared/enums/state.enum';
 
-export type CategoryDocument = HydratedDocument<Category>;
+export type GenresDocument = HydratedDocument<Genres>;
 
 @Schema({
   timestamps: true,
 })
-export class Category {
+export class Genres {
   @Prop({ type: String, required: true })
   name: string;
 
@@ -24,4 +24,4 @@ export class Category {
   slug: string;
 }
 
-export const CategorySchema = SchemaFactory.createForClass(Category);
+export const GenresSchema = SchemaFactory.createForClass(Genres);

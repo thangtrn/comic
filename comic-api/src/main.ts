@@ -37,7 +37,7 @@ async function bootstrap() {
       type: 'http',
       in: 'Header',
     })
-    .addTag('Category', 'Enpoints to manipulate category data')
+    .addTag('Genres', 'Enpoints to manipulate genres data')
     .addTag('Author', 'Enpoints to manipulate author data')
     .addTag('Comic', 'Enpoints to manipulate comic data')
     .addTag('Chapter', 'Enpoints to manipulate chapter data')

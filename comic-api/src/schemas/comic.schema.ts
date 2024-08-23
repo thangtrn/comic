@@ -4,7 +4,7 @@ import State from '~/shared/enums/state.enum';
 import { Media } from './media.schema';
 import Status from '~/shared/enums/status.enum';
 import { Author } from './author.schema';
-import { Category } from './category.schema';
+import { Genres } from './genres.schema';
 
 export type ComicDocument = HydratedDocument<Comic>;
 
@@ -43,10 +43,10 @@ export class Comic {
   status: Status;
 
   @Prop({
-    type: [{ type: Types.ObjectId, ref: 'Category' }],
+    type: [{ type: Types.ObjectId, ref: 'Genres' }],
     default: [],
   })
-  categories: Category[] | Types.ObjectId[];
+  genres: Genres[] | Types.ObjectId[];
 
   @Prop({
     type: [{ type: Types.ObjectId, ref: 'Author' }],

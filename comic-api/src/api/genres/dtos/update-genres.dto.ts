@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 import State from '~/shared/enums/state.enum';
 
-export class UpdateCategoryDto {
+export class UpdateGenresDto {
   @IsMongoId()
   @IsNotEmpty()
   _id: string;

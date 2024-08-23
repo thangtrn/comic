@@ -72,13 +72,13 @@ export class ChapterService {
                 path: '$thumbnail',
               },
             },
-            // categories
+            // genres
             {
               $lookup: {
-                from: 'categories',
-                localField: 'categories',
+                from: 'genres',
+                localField: 'genres',
                 foreignField: '_id',
-                as: 'categories',
+                as: 'genres',
               },
             },
             // authors
