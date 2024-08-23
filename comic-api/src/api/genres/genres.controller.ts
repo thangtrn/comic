@@ -11,6 +11,7 @@ import { UpdateGenresDto } from './dtos/update-genres.dto';
 import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
 import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 import { Public } from '~/shared/decorators/public';
+import RouteCache from '~/shared/decorators/route-cache';
 
 @ApiTags('Genres')
 @Controller('/genres')
@@ -20,12 +21,13 @@ import { Public } from '~/shared/decorators/public';
 export class GenresController {
   constructor(private readonly genresService: GenresService) {}
 
-  @Public()
   @ApiQuery({
     name: 'type',
     type: String,
     required: false,
   })
+  @Public()
+  @RouteCache()
   @Get('/')
   async getAll(@Query() pagination?: PaginationQueryDto, @Query('type') type?: string) {
     return await this.genresService.getAll(pagination, type);

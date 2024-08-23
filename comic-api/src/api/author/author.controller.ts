@@ -11,6 +11,7 @@ import { CreateAuthorDto } from './dtos/create-author.dto';
 import { UpdateAuthorDto } from './dtos/update-author.dto';
 import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
 import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
+import RouteCache from '~/shared/decorators/route-cache';
 
 @ApiTags('Author')
 @Controller('author')
@@ -20,12 +21,13 @@ import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 export class AuthorController {
   constructor(private readonly authorService: AuthorService) {}
 
-  @Public()
   @ApiQuery({
     name: 'type',
     type: String,
     required: false,
   })
+  @Public()
+  @RouteCache()
   @Get('/')
   async getAll(@Query() pagination: PaginationQueryDto, @Query('type') type?: string) {
     return await this.authorService.getAll(pagination, type);

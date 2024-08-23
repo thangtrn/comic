@@ -12,6 +12,7 @@ import { UpdateComicDto } from './dtos/update-comic.dto';
 import { ChapterService } from '../chapter/chapter.service';
 import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
 import { QueryComicDto } from './dtos/query-comic.dto';
+import RouteCache from '~/shared/decorators/route-cache';
 
 @ApiTags('Comic')
 @Controller('comic')
@@ -25,18 +26,21 @@ export class ComicController {
   ) {}
 
   @Public()
+  @RouteCache()
   @Get('/')
   async getByQuery(@Query() comicQuery: QueryComicDto) {
     return this.comicService.getByQuery(comicQuery);
   }
 
   @Public()
+  @RouteCache()
   @Get('/:slug')
   async getBySlug(@Param('slug') slug: string) {
     return await this.comicService.getBySlug(slug);
   }
 
   @Public()
+  @RouteCache()
   @Get('/:comicSlug/chapter/:chapterSlug')
   async getChapterBySlug(
     @Param('comicSlug') comicSlug: string,
