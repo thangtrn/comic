@@ -1,10 +1,11 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+import Role from '~/shared/enums/role.enum';
 import { MailService } from './mail.service';
 import JwtAuthGuard from '../auth/guards/jwt.guard';
 import { Secured } from '~/shared/decorators/roles';
-import Role from '~/shared/enums/role.enum';
+import { MailOptionsDto } from './dtos/mail-options.dto';
 
 @ApiTags('Mail')
 @Controller('mail')
@@ -14,16 +15,8 @@ import Role from '~/shared/enums/role.enum';
 export class MailController {
   constructor(private readonly mailService: MailService) {}
 
-  @Get('/send')
-  async sendMail() {
-    return this.mailService.sendMail({
-      to: 'thangtrn01@gmail.com',
-      subject: 'Verify Email for Comic',
-      template: 'verify-account',
-      context: {
-        username: 'Thắng trần',
-        verification_link: 'xin-chao/verify',
-      },
-    });
+  @Post('/send')
+  async sendMail(@Body() mailOptionsDto: MailOptionsDto) {
+    return this.mailService.sendMail(mailOptionsDto);
   }
 }
