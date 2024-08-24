@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
@@ -8,6 +8,7 @@ import LocalAuthGuard from './guards/local.guard';
 import JwtRefreshAuthGuard from './guards/jwt-refresh.guard';
 import { LogoutDto } from './dtos/logout.dto';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
+import { EmailDto, PasswordDto, TokenDto } from './dtos/common.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -55,12 +56,22 @@ export class AuthController {
   }
 
   @Get('/verify')
-  async verify(@Query('token') token: string) {
-    return await this.authService.verify(token);
+  async verify(@Query() tokenDto: TokenDto) {
+    return await this.authService.verify(tokenDto.token);
   }
 
   @Get('/resent-verify')
-  async resentVerify(@Query('email') email: string) {
-    return await this.authService.resentVerify(email);
+  async resentVerify(@Query() emailDto: EmailDto) {
+    return await this.authService.resentVerify(emailDto.email);
+  }
+
+  @Post('/reset-password')
+  async resetPassword(@Body() emailDto: EmailDto) {
+    return await this.authService.resetPassword(emailDto.email);
+  }
+
+  @Post('/reset-password/:token')
+  async changePassword(@Param() tokenDto: TokenDto, @Body() passwordDto: PasswordDto) {
+    return await this.authService.changePassword(tokenDto.token, passwordDto.password);
   }
 }

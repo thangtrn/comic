@@ -43,6 +43,7 @@ export class UserService {
     if (!doc) {
       throw new NotFoundException('Not found user with _id = ' + doc._id);
     }
+
     return doc;
   }
 }

@@ -4,13 +4,13 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { MailerService } from '@nestjs-modules/mailer';
+import { Types } from 'mongoose';
 
 import { UserService } from '~/api/user/user.service';
 import { UserDocument } from '~/schemas/user.schema';
 import { RegisterDto } from './dtos/register.dto';
 import { JwtPayload } from '~/shared/types/jwt-payload.type';
 import { LogoutDto } from './dtos/logout.dto';
-import { Types } from 'mongoose';
 
 const ACCESS_TOKEN_EXPIRY = 7 * 24 * 60 * 60; // 7 days
 const REFRESH_TOKEN_EXPIRY = 90 * 24 * 60 * 60; // 90 days
@@ -158,7 +158,7 @@ export class AuthService {
       const { userId } = await this.jwtService.verifyAsync(token);
 
       const doc = await this.userService.update({
-        _id: new Types.ObjectId(userId as string),
+        _id: userId,
         verify: true,
       });
 
@@ -184,5 +184,40 @@ export class AuthService {
     });
 
     return userWithoutPassword;
+  }
+
+  async resetPassword(email: string) {
+    const doc = await this.userService.findUserByEmail(email);
+
+    if (!doc) {
+      throw new BadRequestException(`Not found user with email ${email}`);
+    }
+
+    const token = await this.createToken({ userId: doc._id }, VERIFY_TOKEN_EXPIRY_TIME);
+
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Reset Password',
+      template: 'reset-password',
+      context: {
+        reset_link: `${this.configService.get<string>('APP_CLIENT_URL')}/reset-password/${token}`,
+        time: VERIFY_TOKEN_EXPIRY_TIME / 60,
+      },
+    });
+
+    return 'ok';
+  }
+
+  async changePassword(token: string, password: string) {
+    try {
+      const { userId } = await this.jwtService.verifyAsync(token);
+
+      const hashedPassword = await this.hashPassword(password);
+      const doc = await this.userService.update({ _id: userId, password: hashedPassword });
+
+      return doc;
+    } catch (error) {
+      throw new BadRequestException('Invalid token.');
+    }
   }
 }
