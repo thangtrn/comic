@@ -1,9 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import { IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Types } from 'mongoose';
 import { OptionalObjectId } from '~/shared/decorators/validate-mongo-id';
-import State from '~/shared/enums/state.enum';
 
 export class CreateComicDto {
   @ApiProperty({
@@ -32,13 +30,6 @@ export class CreateComicDto {
   })
   @OptionalObjectId('thumbnail')
   thumbnail?: string | Types.ObjectId;
-
-  @ApiProperty({
-    default: State.Draft,
-  })
-  @IsOptional()
-  @IsEnum(State)
-  state?: State = State.Draft;
 
   @ApiProperty({
     default: [],

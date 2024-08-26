@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import State from '~/shared/enums/state.enum';
+
 import { Media } from './media.schema';
 import { Author } from './author.schema';
 import { Genres } from './genres.schema';
@@ -24,12 +24,6 @@ export class Comic {
   @Prop({ type: Types.ObjectId, ref: 'Media' })
   thumbnail?: Media | Types.ObjectId;
 
-  @Prop({ type: Number, default: 0 })
-  view: number;
-
-  @Prop({ type: String, enum: State, default: State.Draft })
-  state: State;
-
   @Prop({
     type: String,
     slug: 'name',
@@ -39,7 +33,7 @@ export class Comic {
   })
   slug: string;
 
-  @Prop({ type: String, enum: Status, default: Status.Process })
+  @Prop({ type: String, enum: Status, default: Status.OnGoing })
   status: Status;
 
   @Prop({

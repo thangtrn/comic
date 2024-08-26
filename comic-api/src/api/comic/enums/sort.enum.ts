@@ -5,6 +5,9 @@ enum Sort {
   UpdatedAtAsc = 'UpdatedAtAsc',
   ViewDesc = 'ViewDesc',
   ViewAsc = 'ViewAsc',
+  TopDay = 'TopDay',
+  TopWeek = 'TopWeek',
+  TopMonth = 'TopMonth',
 }
 
 export default Sort;

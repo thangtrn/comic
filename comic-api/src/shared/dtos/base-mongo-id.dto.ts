@@ -6,7 +6,7 @@ import { TransformMongoObjectId } from '../decorators/validate-mongo-id';
 export class SingleIdDto {
   @ApiProperty({
     type: String,
-    example: 'string',
+    default: '',
   })
   @TransformMongoObjectId()
   _id: Types.ObjectId;

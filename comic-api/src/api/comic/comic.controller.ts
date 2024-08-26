@@ -5,14 +5,16 @@ import { Secured } from '~/shared/decorators/roles';
 import { Public } from '~/shared/decorators/public';
 import Role from '~/shared/enums/role.enum';
 import JwtAuthGuard from '~/api/auth/guards/jwt.guard';
+import RouteCache from '~/shared/decorators/route-cache';
 
+import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
+import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 import { ComicService } from './comic.service';
 import { CreateComicDto } from './dtos/create-comic.dto';
 import { UpdateComicDto } from './dtos/update-comic.dto';
 import { ChapterService } from '../chapter/chapter.service';
-import { SingleIdDto } from '~/shared/dtos/base-mongo-id.dto';
 import { QueryComicDto } from './dtos/query-comic.dto';
-import RouteCache from '~/shared/decorators/route-cache';
+import { QuerySuggestionDto } from './dtos/query-suggestion.dto';
 
 @ApiTags('Comic')
 @Controller('comic')
@@ -28,8 +30,15 @@ export class ComicController {
   @Public()
   @RouteCache()
   @Get('/')
-  async getByQuery(@Query() comicQuery: QueryComicDto) {
-    return this.comicService.getByQuery(comicQuery);
+  async getByQuery(@Query() comicQuery: QueryComicDto, @Query() pagination: PaginationQueryDto) {
+    return this.comicService.getByQuery(comicQuery, pagination);
+  }
+
+  @Public()
+  @RouteCache()
+  @Get('/search/suggestion')
+  async suggestion(@Query() query: QuerySuggestionDto) {
+    return this.comicService.suggestion(query.search, query.limit);
   }
 
   @Public()
@@ -62,5 +71,11 @@ export class ComicController {
   @Delete('/:_id')
   async delete(@Param() param: SingleIdDto) {
     return this.comicService.delete(param._id);
+  }
+
+  @Public()
+  @Get('/:_id/view')
+  updateView(@Param() param: SingleIdDto) {
+    return this.comicService.updateView(param._id);
   }
 }

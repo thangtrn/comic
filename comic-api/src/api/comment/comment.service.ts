@@ -9,7 +9,7 @@ import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 import returnMeta from '~/helpers/metadata';
 import Role from '~/shared/enums/role.enum';
 import { UserDocument } from '~/schemas/user.schema';
-import checkUserPermission from '~/helpers/checkUserPermission';
+import checkIsOwner from '~/utils/checkIsOwner';
 
 @Injectable()
 export class CommentService {
@@ -40,7 +40,7 @@ export class CommentService {
       throw new NotFoundException('Not found comment with _id = ' + comment._id);
     }
 
-    checkUserPermission(user._id, doc.user as Types.ObjectId, user.role);
+    checkIsOwner(user._id, doc.user as Types.ObjectId, user.role);
 
     return await this.commentModel.updateOne(
       { _id: comment._id },
@@ -58,7 +58,7 @@ export class CommentService {
       throw new NotFoundException('Not found comment with _id = ' + _id);
     }
 
-    checkUserPermission(user._id, doc.user as Types.ObjectId, user.role);
+    checkIsOwner(user._id, doc.user as Types.ObjectId, user.role);
 
     return await this.commentModel.deleteOne({ _id: _id });
   }

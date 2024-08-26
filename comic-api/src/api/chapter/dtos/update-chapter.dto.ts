@@ -1,6 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import { IsMongoId, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsMongoId, IsNotEmpty } from 'class-validator';
 import { Types } from 'mongoose';
 import { CreateChapterDto } from './create-chapter.dto';
 import { OptionalObjectId } from '~/shared/decorators/validate-mongo-id';

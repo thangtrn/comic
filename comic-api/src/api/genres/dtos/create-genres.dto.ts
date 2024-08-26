@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import State from '~/shared/enums/state.enum';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateGenresDto {
   @ApiProperty({
@@ -9,8 +8,4 @@ export class CreateGenresDto {
   @IsString()
   @IsNotEmpty()
   name: string;
-
-  @IsEnum(State)
-  @IsOptional()
-  state?: State = State.Draft;
 }

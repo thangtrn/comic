@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import State from '~/shared/enums/state.enum';
 import { Comic } from './comic.schema';
 import { Media } from './media.schema';
 
@@ -12,9 +11,6 @@ export type ChapterDocument = HydratedDocument<Chapter>;
 export class Chapter {
   @Prop({ type: String, required: true })
   name: string;
-
-  @Prop({ type: String, enum: State, default: State.Draft })
-  state: State;
 
   @Prop({
     type: String,

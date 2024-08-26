@@ -7,7 +7,7 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Notification } from '~/schemas/notification.schema';
 import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 import returnMeta from '~/helpers/metadata';
-import checkUserPermission from '~/helpers/checkUserPermission';
+import checkIsOwner from '~/utils/checkIsOwner';
 import { CreateNotificationDto } from '../dtos/create-notification.dto';
 import { INotificationRedis, NotificationGateWay } from '../notification.gateway';
 
@@ -62,7 +62,7 @@ export class NotificationService {
       throw new NotFoundException('Not notification with _id = ' + _id);
     }
 
-    checkUserPermission(user._id, doc.user as Types.ObjectId, user.role);
+    checkIsOwner(user._id, doc.user as Types.ObjectId, user.role);
 
     return await this.notificationModel.findByIdAndUpdate(
       _id,
@@ -82,7 +82,7 @@ export class NotificationService {
       throw new NotFoundException('Not notification with _id = ' + _id);
     }
 
-    checkUserPermission(user._id, doc.user as Types.ObjectId, user.role);
+    checkIsOwner(user._id, doc.user as Types.ObjectId, user.role);
 
     return await this.notificationModel.findByIdAndUpdate(
       _id,

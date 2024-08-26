@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsMongoId, IsNotEmpty, IsString } from 'class-validator';
-import State from '~/shared/enums/state.enum';
+import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 
 export class UpdateGenresDto {
   @IsMongoId()
@@ -13,11 +12,4 @@ export class UpdateGenresDto {
   @IsString()
   @IsNotEmpty()
   name: string;
-
-  @IsNotEmpty()
-  @IsEnum(State)
-  @ApiProperty({
-    default: State.Public,
-  })
-  state: State;
 }

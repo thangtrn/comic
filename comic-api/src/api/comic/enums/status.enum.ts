@@ -1,5 +1,5 @@
 enum Status {
-  Process = 'process',
+  OnGoing = 'ongoing',
   Done = 'done',
 }
 

@@ -19,7 +19,7 @@ export class ChapterService {
   ) {}
 
   async getChapterBySlug(comicSlug: string, chapterSlug: string) {
-    const doc = await this.chapterModel.aggregate([
+    const docs = await this.chapterModel.aggregate([
       {
         $lookup: {
           from: 'chapters',
@@ -90,6 +90,44 @@ export class ChapterService {
                 as: 'authors',
               },
             },
+            // views
+            {
+              $lookup: {
+                from: 'views',
+                let: {
+                  comicId: '$_id',
+                },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $eq: ['$$comicId', '$comic'],
+                      },
+                    },
+                  },
+                  {
+                    $group: {
+                      _id: '$comic',
+                      count: { $sum: '$count' },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 0,
+                      count: 1,
+                    },
+                  },
+                ],
+                as: 'views',
+              },
+            },
+            {
+              $addFields: {
+                views: {
+                  $ifNull: [{ $arrayElemAt: ['$views.count', 0] }, 0],
+                },
+              },
+            },
           ],
           as: 'comic',
         },
@@ -120,7 +158,7 @@ export class ChapterService {
         },
       },
     ]);
-    return doc;
+    return docs?.[0];
   }
 
   async create(chapter: CreateChapterDto) {

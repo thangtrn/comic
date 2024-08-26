@@ -1,11 +1,9 @@
-import { PartialType } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
-import { PaginationQueryDto } from '~/shared/dtos/pagination.dto';
 import Status from '../enums/status.enum';
 import Sort from '../enums/sort.enum';
 
-export class QueryComicDto extends PartialType(PaginationQueryDto) {
+export class QueryComicDto {
   @IsOptional()
   @IsString()
   search?: string;
