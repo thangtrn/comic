@@ -13,7 +13,7 @@ import { ComicService } from './comic.service';
 import { CreateComicDto } from './dtos/create-comic.dto';
 import { UpdateComicDto } from './dtos/update-comic.dto';
 import { ChapterService } from '../chapter/chapter.service';
-import { QueryComicDto } from './dtos/query-comic.dto';
+import { QueryComicDto, QueryGenresDto } from './dtos/query-comic.dto';
 import { QuerySuggestionDto } from './dtos/query-suggestion.dto';
 
 @ApiTags('Comic')
@@ -28,7 +28,7 @@ export class ComicController {
   ) {}
 
   @Public()
-  @RouteCache()
+  // @RouteCache()
   @Get('/')
   async getByQuery(@Query() comicQuery: QueryComicDto, @Query() pagination: PaginationQueryDto) {
     return this.comicService.getByQuery(comicQuery, pagination);
@@ -56,6 +56,17 @@ export class ComicController {
     @Param('chapterSlug') chapterSlug: string,
   ) {
     return await this.chapterService.getChapterBySlug(comicSlug, chapterSlug);
+  }
+
+  @Public()
+  @RouteCache()
+  @Get('/search/:genresSlug')
+  getByGenres(
+    @Param('genresSlug') genresSlug: string,
+    @Query() comicQuery: QueryGenresDto,
+    @Query() pagination: PaginationQueryDto,
+  ) {
+    return this.comicService.getByGenres(genresSlug, comicQuery, pagination);
   }
 
   @Post('/')

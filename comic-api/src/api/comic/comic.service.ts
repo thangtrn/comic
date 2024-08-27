@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, endOfMonth, endOfWeek, startOfDay, startOfMonth, startOfWeek } from 'date-fns';
 
 import returnMeta from '~/helpers/metadata';
 import { Comic } from '~/schemas/comic.schema';
 import { CreateComicDto } from './dtos/create-comic.dto';
 import { UpdateComicDto } from './dtos/update-comic.dto';
-import { QueryComicDto } from './dtos/query-comic.dto';
+import { QueryComicDto, QueryGenresDto } from './dtos/query-comic.dto';
 import removeNullUndefinedFields from '~/utils/removeNullUndefinedFields';
 import Sort from './enums/sort.enum';
 import { View } from '~/schemas/view.schema';
@@ -20,215 +20,148 @@ export class ComicService {
     @InjectModel(View.name) private viewModel: Model<View>,
   ) {}
 
-  async getByQuery(comicQuery: QueryComicDto, pagination: PaginationQueryDto) {
-    let statusOption: any;
+  // ----------- builder query -----------
 
+  private buildPipeline(comicQuery: QueryComicDto | QueryGenresDto, genresSlug?: string): any[] {
+    const searchStages: any[] = [];
+
+    const filterStages: any[] = [];
+
+    // Filter by genres or specific genre slug
+    if (genresSlug) {
+      filterStages.push({ 'genres.slug': { $in: [genresSlug] } });
+    } else if ((comicQuery as QueryComicDto)?.genres?.length > 0) {
+      filterStages.push({ 'genres.slug': { $in: (comicQuery as QueryComicDto)?.genres } });
+    }
+
+    // Filter by status
     if (comicQuery.status) {
-      statusOption = {
-        $match: {
-          status: comicQuery.status,
-        },
-      };
+      filterStages.push({ status: comicQuery.status });
     }
 
-    let sortOption: any;
-
-    switch (comicQuery.sortBy) {
-      case Sort.CreatedAtDesc:
-        sortOption = {
-          $sort: {
-            createdAt: -1,
-          },
-        };
-        break;
-      case Sort.UpdatedAtAsc:
-        sortOption = {
-          $sort: {
-            updatedAt: 1,
-          },
-        };
-        break;
-      case Sort.UpdatedAtDesc:
-        sortOption = {
-          $sort: {
-            updatedAt: -1,
-          },
-        };
-        break;
-      case Sort.ViewAsc:
-        sortOption = {
-          $sort: {
-            views: 1,
-          },
-        };
-        break;
-      case Sort.ViewDesc:
-        sortOption = {
-          $sort: {
-            views: -1,
-          },
-        };
-        break;
-      default: // sort by createdAt
-        sortOption = {
-          $sort: {
-            createdAt: 1,
-          },
-        };
+    // Search by name or originName
+    if (comicQuery.search) {
+      const searchRegex = { $regex: `.*${comicQuery.search}.*`, $options: 'i' };
+      searchStages.push({
+        $or: [{ name: searchRegex }, { originName: searchRegex }],
+      });
     }
 
-    const queryPipeline: any[] = [
-      // search
-      {
-        $match: {
-          $or: [
-            {
-              name: {
-                $regex: `.*${comicQuery.search || ''}.*`,
-                $options: 'i',
-              },
-            },
-            {
-              originName: {
-                $regex: `.*${comicQuery.search || ''}.*`,
-                $options: 'i',
-              },
-            },
-          ],
-        },
-      },
-      // filter
-      statusOption,
-      // main
-      {
-        $lookup: {
-          from: 'genres',
-          foreignField: '_id',
-          localField: 'genres',
-          as: 'genres',
-        },
-      },
-      {
-        $lookup: {
-          from: 'authors',
-          foreignField: '_id',
-          localField: 'authors',
-          as: 'authors',
-        },
-      },
-      {
-        $lookup: {
-          from: 'media',
-          foreignField: '_id',
-          localField: 'thumbnail',
-          as: 'thumbnail',
-        },
-      },
-      {
-        $unwind: '$thumbnail',
-      },
+    // Determine sort option
+    const sortOption = {
+      [Sort.CreatedAtDesc]: { createdAt: -1 },
+      [Sort.UpdatedAtAsc]: { updatedAt: 1 },
+      [Sort.UpdatedAtDesc]: { updatedAt: -1 },
+      [Sort.ViewAsc]: { views: 1 },
+      [Sort.TopDay]: { views: -1 },
+      [Sort.TopWeek]: { views: -1 },
+      [Sort.TopMonth]: { views: -1 },
+    }[comicQuery.sortBy] || { createdAt: 1 };
+
+    // Determine filter based on sort criteria (TopDay, TopWeek, TopMonth)
+    const date = new Date();
+
+    // Map date ranges for sorting criteria
+    const dateRangeMap = {
+      [Sort.TopDay]: [startOfDay(date), endOfDay(date)],
+      [Sort.TopWeek]: [startOfWeek(date), endOfWeek(date)],
+      [Sort.TopMonth]: [startOfMonth(date), endOfMonth(date)],
+    };
+
+    const matchViewStages: any[] = [];
+
+    const dateRange = dateRangeMap[comicQuery.sortBy];
+    if (dateRange) {
+      // Add date range filter to match stages
+      matchViewStages.push({ 'v.createdAt': { $gte: dateRange[0], $lt: dateRange[1] } });
+    }
+
+    // Combine search and filter stages with lookup stages
+    const pipeline: any[] = [
+      // Lookup genres before filtering
+      { $lookup: { from: 'genres', foreignField: '_id', localField: 'genres', as: 'genres' } },
+
+      // Apply search stages
+      { $match: searchStages.length ? { $and: searchStages } : {} },
+
+      // Apply filter stages
+      { $match: filterStages.length ? { $and: filterStages } : {} },
+
+      // Additional lookups and transformations
+      { $lookup: { from: 'authors', foreignField: '_id', localField: 'authors', as: 'authors' } },
+      { $lookup: { from: 'media', foreignField: '_id', localField: 'thumbnail', as: 'thumbnail' } },
+      { $unwind: '$thumbnail' },
+
+      // For chapters
       {
         $lookup: {
           from: 'chapters',
-          let: {
-            comicId: '$_id',
-          },
+          let: { comicId: '$_id' },
           pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $eq: ['$$comicId', '$comic'],
-                },
-              },
-            },
-            {
-              $sort: {
-                createdAt: -1,
-              },
-            },
+            { $match: { $expr: { $eq: ['$$comicId', '$comic'] } } },
+            { $sort: { createdAt: -1 } },
           ],
           as: 'chapters',
         },
       },
+
+      // For views
       {
         $lookup: {
           from: 'views',
-          let: {
-            comicId: '$_id',
-          },
+          let: { comicId: '$_id' },
           pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $eq: ['$$comicId', '$comic'],
-                },
-              },
-            },
-            {
-              $group: {
-                _id: '$comic',
-                count: { $sum: '$count' },
-              },
-            },
-            {
-              $project: {
-                _id: 0,
-                count: 1,
-              },
-            },
+            { $match: { $expr: { $eq: ['$$comicId', '$comic'] } } },
+            { $group: { _id: '$comic', count: { $sum: '$count' } } },
+            { $project: { _id: 0, count: 1 } },
           ],
           as: 'views',
         },
       },
       {
         $addFields: {
-          views: {
-            $ifNull: [{ $arrayElemAt: ['$views.count', 0] }, 0],
+          views: { $ifNull: [{ $arrayElemAt: ['$views.count', 0] }, 0] },
+          preview: {
+            $ifNull: [{ $slice: [{ $arrayElemAt: ['$chapters.images', 0] }, 10] }, []],
           },
         },
       },
+
+      // For preview
+      { $lookup: { from: 'media', localField: 'preview', foreignField: '_id', as: 'preview' } },
+
+      // For lastChapter
       {
         $addFields: {
-          preview: {
-            $ifNull: [
-              {
-                $slice: [
-                  {
-                    $arrayElemAt: ['$chapters.images', 0],
-                  },
-                  10,
-                ],
-              },
-              [],
-            ],
+          lastChapter: {
+            $ifNull: [{ $arrayElemAt: ['$chapters', 0] }, null],
           },
         },
       },
-      {
-        $lookup: {
-          from: 'media',
-          localField: 'preview',
-          foreignField: '_id',
-          as: 'preview',
-        },
-      },
-      // sort
-      sortOption,
-    ].filter((item) => item); // filter item !== null or undefine
+      // TODO: sort view by range date
+
+      // Sort
+      { $sort: sortOption },
+    ];
+
+    return pipeline;
+  }
+
+  // ----------- service -----------
+
+  async getByQuery(comicQuery: QueryComicDto, pagination: PaginationQueryDto) {
+    const pipeline = this.buildPipeline(comicQuery);
 
     const [count, docs] = await Promise.all([
-      this.comicModel.aggregate([...queryPipeline, { $count: 'totalDocuments' }]),
+      this.comicModel.aggregate([...pipeline, { $count: 'totalDocuments' }]),
       this.comicModel.aggregate([
-        ...queryPipeline,
-        // pagination
-        {
-          $skip: pagination.skip,
-        },
-        {
-          $limit: pagination.limit,
-        },
+        ...pipeline,
+        // Pagination
+        { $skip: pagination.skip },
+        { $limit: pagination.limit },
       ]),
     ]);
+
     const totalDocuments = count.length > 0 ? count[0].totalDocuments : 0;
     return returnMeta(docs, pagination.page, pagination.limit, totalDocuments);
   }
@@ -509,7 +442,6 @@ export class ComicService {
     };
   }
 
-  // --------------- VIEW --------------
   async updateView(_id: Types.ObjectId) {
     const date = new Date();
     const doc = this.viewModel.findOneAndUpdate(
@@ -518,5 +450,26 @@ export class ComicService {
       { new: true, upsert: true, setDefaultsOnInsert: true },
     );
     return doc;
+  }
+
+  async getByGenres(
+    genresSlug: string,
+    comicQuery: QueryGenresDto,
+    pagination: PaginationQueryDto,
+  ) {
+    const pipeline = this.buildPipeline(comicQuery, genresSlug);
+
+    const [count, docs] = await Promise.all([
+      this.comicModel.aggregate([...pipeline, { $count: 'totalDocuments' }]),
+      this.comicModel.aggregate([
+        ...pipeline,
+        // Pagination
+        { $skip: pagination.skip },
+        { $limit: pagination.limit },
+      ]),
+    ]);
+
+    const totalDocuments = count.length > 0 ? count[0].totalDocuments : 0;
+    return returnMeta(docs, pagination.page, pagination.limit, totalDocuments);
   }
 }
