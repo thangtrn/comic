@@ -28,7 +28,7 @@ export class ComicController {
   ) {}
 
   @Public()
-  // @RouteCache()
+  @RouteCache()
   @Get('/')
   async getByQuery(@Query() comicQuery: QueryComicDto, @Query() pagination: PaginationQueryDto) {
     return this.comicService.getByQuery(comicQuery, pagination);

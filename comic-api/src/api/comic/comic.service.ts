@@ -24,8 +24,8 @@ export class ComicService {
 
   private buildPipeline(comicQuery: QueryComicDto | QueryGenresDto, genresSlug?: string): any[] {
     const searchStages: any[] = [];
-
     const filterStages: any[] = [];
+    const matchViewStages: any[] = [];
 
     // Filter by genres or specific genre slug
     if (genresSlug) {
@@ -53,9 +53,9 @@ export class ComicService {
       [Sort.UpdatedAtAsc]: { updatedAt: 1 },
       [Sort.UpdatedAtDesc]: { updatedAt: -1 },
       [Sort.ViewAsc]: { views: 1 },
-      [Sort.TopDay]: { views: -1 },
-      [Sort.TopWeek]: { views: -1 },
-      [Sort.TopMonth]: { views: -1 },
+      [Sort.TopDay]: { viewSort: -1, views: -1 },
+      [Sort.TopWeek]: { viewSort: -1, views: -1 },
+      [Sort.TopMonth]: { viewSort: -1, views: -1 },
     }[comicQuery.sortBy] || { createdAt: 1 };
 
     // Determine filter based on sort criteria (TopDay, TopWeek, TopMonth)
@@ -68,12 +68,65 @@ export class ComicService {
       [Sort.TopMonth]: [startOfMonth(date), endOfMonth(date)],
     };
 
-    const matchViewStages: any[] = [];
-
     const dateRange = dateRangeMap[comicQuery.sortBy];
     if (dateRange) {
       // Add date range filter to match stages
-      matchViewStages.push({ 'v.createdAt': { $gte: dateRange[0], $lt: dateRange[1] } });
+      matchViewStages.push(
+        {
+          $lookup: {
+            from: 'views',
+            let: {
+              comicId: '$_id',
+            },
+            pipeline: [
+              {
+                $match: {
+                  $and: [
+                    {
+                      $expr: {
+                        $eq: ['$$comicId', '$comic'],
+                      },
+                    },
+                    {
+                      createdAt: {
+                        $gte: dateRange[0],
+                        $lte: dateRange[1],
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                $group: {
+                  _id: '$comic',
+                  count: {
+                    $sum: '$count',
+                  },
+                },
+              },
+              {
+                $project: {
+                  _id: 0,
+                  count: 1,
+                },
+              },
+            ],
+            as: 'viewSort',
+          },
+        },
+        {
+          $addFields: {
+            viewSort: {
+              $ifNull: [
+                {
+                  $arrayElemAt: ['$viewSort.count', 0],
+                },
+                0,
+              ],
+            },
+          },
+        },
+      );
     }
 
     // Combine search and filter stages with lookup stages
@@ -138,8 +191,7 @@ export class ComicService {
           },
         },
       },
-      // TODO: sort view by range date
-
+      ...matchViewStages,
       // Sort
       { $sort: sortOption },
     ];
