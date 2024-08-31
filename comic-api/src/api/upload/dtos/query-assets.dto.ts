@@ -10,6 +10,6 @@ export class QueryAssetsDto extends PaginationQueryDto {
     required: false,
     nullable: true,
   })
-  @OptionalObjectId('parentFolderId')
-  parentFolderId?: Types.ObjectId | null;
+  @OptionalObjectId('folderId')
+  folderId?: Types.ObjectId | null;
 }

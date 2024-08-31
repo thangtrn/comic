@@ -8,9 +8,9 @@ import { Secured } from '~/shared/decorators/roles';
 import Role from '~/shared/enums/role.enum';
 
 @ApiTags('Crawl')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
-@Secured(Role.Admin)
+// @ApiBearerAuth()
+// @UseGuards(JwtAuthGuard)
+// @Secured(Role.Admin)
 @Controller('crawl')
 export class CrawlController {
   constructor(private crawlService: CrawlService) {}

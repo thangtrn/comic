@@ -39,7 +39,7 @@ export class UploadController {
 
   @Get('/assets')
   async getFilesAndFoldersByParentFolder(@Query() assetsQuery: QueryAssetsDto) {
-    return await this.uploadService.getFilesAndFoldersByParentFolderId(assetsQuery);
+    return await this.uploadService.getFilesAndFolders(assetsQuery);
   }
 
   // file handdler

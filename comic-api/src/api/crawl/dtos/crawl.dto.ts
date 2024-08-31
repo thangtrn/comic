@@ -15,7 +15,9 @@ export class CrawlComicDto {
   @IsString({ each: true })
   @ArrayMinSize(1)
   @ApiProperty({
-    default: ['https://truyenqqto.com/truyen-tranh/onepunch-man-244'],
+    default: [
+      'https://truyenqqto.com/truyen-tranh/doraemon-nobita-va-nhung-hiep-si-khong-gian-1062',
+    ],
   })
   urls: string[];
 

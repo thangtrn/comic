@@ -132,7 +132,10 @@ export class CrawlService {
   ) {
     try {
       const comicResult = [];
-      const genresList = await this.genresModel.find({});
+      const [genresList, rootFolder] = await Promise.all([
+        this.genresModel.find({}),
+        this.getOrCreateFolderRoot(),
+      ]);
 
       for (const comic of listComicData) {
         // Check for existing comic
@@ -145,7 +148,7 @@ export class CrawlService {
         // Create or update folder
         const folderDoc = await this.folderModel.findOneAndUpdate(
           { folderName: comic.name },
-          { $setOnInsert: { folderName: comic.name } },
+          { $setOnInsert: { folderName: comic.name, parentFolder: rootFolder._id } },
           { upsert: true, new: true },
         );
 
@@ -293,6 +296,14 @@ export class CrawlService {
       this.logger.error('Failed to save chapters', error.stack);
       throw new Error('Failed to save chapters: ' + error.message);
     }
+  }
+
+  private async getOrCreateFolderRoot() {
+    const doc = await this.folderModel.findOne({ parentFolder: null });
+    if (!doc) {
+      return (await this.folderModel.create({ folderName: 'Root', parentFolder: null })).toJSON();
+    }
+    return doc.toJSON();
   }
   // #endregion
 

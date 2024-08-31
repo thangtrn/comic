@@ -11,7 +11,6 @@ import { UpdateFolderDto } from './dtos/update-folder.dto';
 import { CreateFileDto } from './dtos/create-file.dto';
 import { UpdateFileDto } from './dtos/update-file.dto';
 import removeNullUndefinedFields from '~/utils/removeNullUndefinedFields';
-import returnMeta from '~/helpers/metadata';
 import { QueryAssetsDto } from './dtos/query-assets.dto';
 
 @Injectable()
@@ -22,21 +21,36 @@ export class UploadService {
   ) {}
 
   // file handler
-  async getFilesAndFoldersByParentFolderId(query: QueryAssetsDto) {
+  async getFilesAndFolders(query: QueryAssetsDto) {
+    if (!query.folderId) {
+      query.folderId = (await this.getOrCreateFolderRoot())._id;
+    }
+
     const [count, docs] = await Promise.all([
-      this.mediaModel.countDocuments({ parentFolder: query.parentFolderId }),
+      this.mediaModel.countDocuments({ parentFolder: query.folderId }),
       this.folderModel.aggregate([
         {
           $match: {
-            parentFolder: query.parentFolderId,
+            _id: query.folderId,
           },
         },
         {
-          $group: {
-            _id: '$parentFolder',
-            folders: {
-              $push: '$$ROOT',
-            },
+          $graphLookup: {
+            from: 'folders',
+            startWith: '$_id',
+            connectFromField: 'parentFolder',
+            connectToField: '_id',
+            as: 'breadcrumb',
+            depthField: 'level',
+            maxDepth: 10,
+          },
+        },
+        {
+          $lookup: {
+            from: 'folders',
+            localField: '_id',
+            foreignField: 'parentFolder',
+            as: 'folders',
           },
         },
         {
@@ -64,40 +78,39 @@ export class UploadService {
           },
         },
         {
-          $graphLookup: {
-            from: 'folders',
-            startWith: '$_id',
-            connectFromField: 'parentFolder',
-            connectToField: '_id',
-            as: 'breadcrumb',
-            maxDepth: 10,
-            depthField: 'level',
-          },
-        },
-        {
           $project: {
-            _id: 0,
-            parentFolder: '$_id',
+            _id: 1,
             breadcrumb: {
               $reverseArray: '$breadcrumb',
             },
-            folders: '$folders',
-            files: '$files',
+            folders: 1,
+            files: 1,
           },
         },
       ]),
     ]);
-    return returnMeta(docs, query.page, query.limit, count);
+    return {
+      data: docs?.[0],
+      pagination: {
+        page: query.page,
+        limit: query.limit,
+        total: Math.ceil(count / query.limit),
+        totalItemPage: docs?.[0].files.length,
+        totalItemCount: count,
+      },
+    };
   }
 
   async uploadFiles(files: Array<Express.Multer.File>, fileDto: CreateFileDto) {
+    const rootFolder = await this.getOrCreateFolderRoot();
+
     const filesUploader = files.map((file: Express.Multer.File) => ({
       originalName: file.originalname,
       fileName: file.filename,
       mimeType: file.mimetype,
       destination: file.destination,
       size: file.size,
-      parentFolder: fileDto?.parentFolder,
+      parentFolder: fileDto?.parentFolder || rootFolder._id,
     }));
 
     const docs = await this.mediaModel.insertMany(filesUploader);
@@ -149,11 +162,18 @@ export class UploadService {
 
   // folder handler
   async createFolder(folder: CreateFolderDto) {
-    return await this.folderModel.create(folder);
+    return await this.folderModel.create({
+      ...folder,
+      parentFolder: folder.parentFolder || (await this.getOrCreateFolderRoot())._id,
+    });
   }
 
   async updateFolder(folder: UpdateFolderDto) {
     const { _id, ...folderWithoutId } = folder;
+
+    if (!folderWithoutId.parentFolder) {
+      folderWithoutId.parentFolder = (await this.getOrCreateFolderRoot())._id;
+    }
 
     const docs = await this.folderModel.findByIdAndUpdate(
       _id,
@@ -173,5 +193,13 @@ export class UploadService {
   async deletedFolders(_ids: string[]) {
     const docs = await this.folderModel.deleteMany({ _id: { $in: _ids } });
     return docs;
+  }
+
+  private async getOrCreateFolderRoot() {
+    const doc = await this.folderModel.findOne({ parentFolder: null });
+    if (!doc) {
+      return (await this.folderModel.create({ folderName: 'Root', parentFolder: null })).toJSON();
+    }
+    return doc.toJSON();
   }
 }
