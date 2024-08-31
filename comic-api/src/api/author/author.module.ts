@@ -9,5 +9,6 @@ import { Author, AuthorSchema } from '~/schemas/author.schema';
   imports: [MongooseModule.forFeature([{ name: Author.name, schema: AuthorSchema }])],
   providers: [AuthorService],
   controllers: [AuthorController],
+  exports: [MongooseModule],
 })
 export class AuthorModule {}

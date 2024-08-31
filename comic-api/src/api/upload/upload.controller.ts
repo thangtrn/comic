@@ -31,14 +31,13 @@ import RouteCache from '~/shared/decorators/route-cache';
 
 @ApiTags('Upload')
 @Controller('/upload')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
-@Secured(Role.Admin)
+// @ApiBearerAuth()
+// @UseGuards(JwtAuthGuard)
+// @Secured(Role.Admin)
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Get('/assets')
-  @RouteCache()
   async getFilesAndFoldersByParentFolder(@Query() assetsQuery: QueryAssetsDto) {
     return await this.uploadService.getFilesAndFoldersByParentFolderId(assetsQuery);
   }

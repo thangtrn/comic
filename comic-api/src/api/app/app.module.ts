@@ -8,6 +8,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import MongooseSlugUpdater = require('mongoose-slug-updater');
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { BullModule } from '@nestjs/bullmq';
 
 import { AuthModule } from '~/api/auth/auth.module';
 import { UserModule } from '~/api/user/user.module';
@@ -20,6 +21,7 @@ import { CommentModule } from '~/api/comment/comment.module';
 import { FollowModule } from '~/api/follow/follow.module';
 import { NotificationModule } from '~/api/notification/notification.module';
 import { MailModule } from '~/api/mail/mail.module';
+import { CrawlModule } from '~/api/crawl/crawl.module';
 
 @Module({
   imports: [
@@ -37,6 +39,12 @@ import { MailModule } from '~/api/mail/mail.module';
             port: parseInt(process.env.REDIS_PORT),
           },
         }),
+    }),
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT),
+      },
     }),
     MongooseModule.forRoot(process.env.MONGO_URI, {
       connectionFactory: (connection) => {
@@ -76,6 +84,7 @@ import { MailModule } from '~/api/mail/mail.module';
     FollowModule,
     NotificationModule,
     MailModule,
+    CrawlModule,
   ],
   controllers: [],
   providers: [],

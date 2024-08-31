@@ -25,7 +25,7 @@ export class UploadService {
   async getFilesAndFoldersByParentFolderId(query: QueryAssetsDto) {
     const [count, docs] = await Promise.all([
       this.mediaModel.countDocuments({ parentFolder: query.parentFolderId }),
-      await this.folderModel.aggregate([
+      this.folderModel.aggregate([
         {
           $match: {
             parentFolder: query.parentFolderId,
