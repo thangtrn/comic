@@ -22,6 +22,7 @@ import { FollowModule } from '~/api/follow/follow.module';
 import { NotificationModule } from '~/api/notification/notification.module';
 import { MailModule } from '~/api/mail/mail.module';
 import { CrawlModule } from '~/api/crawl/crawl.module';
+import path = require('path');
 
 @Module({
   imports: [
@@ -65,7 +66,7 @@ import { CrawlModule } from '~/api/crawl/crawl.module';
         from: `"Comic app" <${process.env.MAIL_FROM}>`,
       },
       template: {
-        dir: process.cwd() + '/src/templates',
+        dir: path.join(__dirname, '../../templates'),
         adapter: new HandlebarsAdapter(),
         options: {
           strict: true,

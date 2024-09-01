@@ -12,11 +12,14 @@ services:
    #       - app-network
 
    server:
+      container_name: comic-server
       build:
          context: ./comic-api
          dockerfile: Dockerfile
       env_file:
          - ./comic-api/.env
+      volumes:
+         - ./comic-api/public:/app/public
       ports:
          - 5000:5000
       depends_on:
@@ -24,6 +27,7 @@ services:
          - redis
       networks:
          - app-network
+      restart: on-failure
 
    database:
       image: mongo
@@ -47,10 +51,14 @@ services:
 
    nginx:
       image: nginx:1.23.3
+      container_name: comic-nginx
       ports:
          - 80:80
-      volumes:
-         - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      # volumes:
+      #    - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      build:
+         context: /nginx
+         dockerfile: Dockerfile
       depends_on:
          - server
          # - client

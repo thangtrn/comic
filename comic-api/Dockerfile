@@ -1,29 +1,30 @@
-FROM node:20-alpine as builder
+FROM node:lts as builder
 
-ENV NODE_ENV build
+# Create app directory
+WORKDIR /app
 
-USER node
-WORKDIR /home/node
+# Install app dependencies
+COPY package.json yarn.lock ./
 
-COPY package*.json ./
-RUN npm ci
+RUN yarn install --frozen-lockfile
 
-COPY --chown=node:node . .
-RUN npx prisma generate \
-    && npm run build \
-    && npm prune --omit=dev
+COPY . .
 
-# ---
+RUN yarn build
 
-FROM node:20-alpine
+FROM node:lts-slim
 
 ENV NODE_ENV production
-
 USER node
-WORKDIR /home/node
 
-COPY --from=builder --chown=node:node /home/node/package*.json ./
-COPY --from=builder --chown=node:node /home/node/node_modules/ ./node_modules/
-COPY --from=builder --chown=node:node /home/node/dist/ ./dist/
+# Create app directory
+WORKDIR /app
 
-CMD ["node", "dist/server.js"]
+# Install app dependencies
+COPY package.json yarn.lock ./
+
+RUN yarn install --production --frozen-lockfile
+
+COPY --from=builder /app/dist ./dist
+
+CMD [ "node", "dist/main.js" ]
