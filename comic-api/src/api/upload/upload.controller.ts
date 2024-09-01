@@ -27,7 +27,6 @@ import { DeleteFolderDto } from './dtos/delete-folder.dto';
 import { CreateFileDto } from './dtos/create-file.dto';
 import { UpdateFileDto } from './dtos/update-file.dto';
 import { QueryAssetsDto } from './dtos/query-assets.dto';
-import RouteCache from '~/shared/decorators/route-cache';
 
 @ApiTags('Upload')
 @Controller('/upload')
@@ -38,9 +37,8 @@ export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Get('/assets')
-  @RouteCache()
   async getFilesAndFoldersByParentFolder(@Query() assetsQuery: QueryAssetsDto) {
-    return await this.uploadService.getFilesAndFoldersByParentFolderId(assetsQuery);
+    return await this.uploadService.getFilesAndFolders(assetsQuery);
   }
 
   // file handdler

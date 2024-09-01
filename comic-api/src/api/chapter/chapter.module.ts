@@ -13,6 +13,6 @@ import { ComicModule } from '../comic/comic.module';
   ],
   controllers: [ChapterController],
   providers: [ChapterService],
-  exports: [ChapterService],
+  exports: [MongooseModule, ChapterService],
 })
 export class ChapterModule {}

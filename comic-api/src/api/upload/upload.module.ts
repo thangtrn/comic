@@ -15,5 +15,6 @@ import { Folder, FolderSchema } from '~/schemas/folder.schema';
   ],
   controllers: [UploadController],
   providers: [UploadService],
+  exports: [MongooseModule],
 })
 export class UploadModule {}

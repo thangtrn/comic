@@ -183,6 +183,26 @@ export class ComicService {
       // For preview
       { $lookup: { from: 'media', localField: 'preview', foreignField: '_id', as: 'preview' } },
 
+      // Remove images in chapters
+      {
+        $addFields: {
+          chapters: {
+            $map: {
+              input: '$chapters',
+              as: 'chapter',
+              in: {
+                _id: '$$chapter._id',
+                name: '$$chapter.name',
+                comic: '$$chapter.comic',
+                createdAt: '$$chapter.createdAt',
+                updatedAt: '$$chapter.updatedAt',
+                slug: '$$chapter.slug',
+              },
+            },
+          },
+        },
+      },
+
       // For lastChapter
       {
         $addFields: {
@@ -421,6 +441,24 @@ export class ComicService {
           localField: 'preview',
           foreignField: '_id',
           as: 'preview',
+        },
+      },
+      {
+        $addFields: {
+          chapters: {
+            $map: {
+              input: '$chapters',
+              as: 'chapter',
+              in: {
+                _id: '$$chapter._id',
+                name: '$$chapter.name',
+                comic: '$$chapter.comic',
+                createdAt: '$$chapter.createdAt',
+                updatedAt: '$$chapter.updatedAt',
+                slug: '$$chapter.slug',
+              },
+            },
+          },
         },
       },
     ]);

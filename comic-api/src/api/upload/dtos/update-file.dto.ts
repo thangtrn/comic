@@ -11,5 +11,5 @@ export class UpdateFileDto extends PartialType(MultipleIdDto) {
     nullable: true,
   })
   @OptionalObjectId('parentFolder')
-  parentFolder?: Types.ObjectId | string | null;
+  parentFolder?: Types.ObjectId | null;
 }
