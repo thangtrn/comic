@@ -2,18 +2,20 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as cheerio from 'cheerio';
 import { Model, Types } from 'mongoose';
+import { randomUUID } from 'crypto';
+import * as fs from 'fs';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+
 import crawlApi from './axios/crawl-api';
 import { CrawlComicDto, CrawlGenresDto } from './dtos/crawl.dto';
 import { Genres } from '~/schemas/genres.schema';
 import { Comic } from '~/schemas/comic.schema';
-import Status from '../comic/enums/status.enum';
 import { Author } from '~/schemas/author.schema';
 import * as path from 'path';
-import { randomUUID } from 'crypto';
-import * as fs from 'fs';
 import { Folder } from '~/schemas/folder.schema';
 import { Media } from '~/schemas/media.schema';
-import { CrawlAuthor, CrawlChapter, CrawlComicData } from './types/crawl';
+import { CrawlAuthor } from './types/crawl';
 import { Chapter } from '~/schemas/chapter.schema';
 
 @Injectable()
@@ -27,6 +29,8 @@ export class CrawlService {
     @InjectModel(Folder.name) private folderModel: Model<Folder>,
     @InjectModel(Media.name) private mediaModel: Model<Media>,
     @InjectModel(Chapter.name) private chapterModel: Model<Chapter>,
+    @InjectQueue('genres-queue') private genresQueue: Queue,
+    @InjectQueue('comic-queue') private comicQueue: Queue,
   ) {}
 
   // #region Genres
@@ -40,23 +44,22 @@ export class CrawlService {
         .map((_, el) => this.capitalizeFirstLetter($(el).text()))
         .get();
 
-      if (genres.length > 0) {
-        const genresDocs = await this.getOrCreateGenres(genres);
-        return genresDocs;
-      }
-      return [];
+      await this.genresQueue.add('crawl-genres', genres, {
+        removeOnComplete: true,
+        removeOnFail: true,
+      });
     } catch (error) {
       this.logger.error('Failed to crawl genres', error.stack);
       throw new Error('Failed to crawl genres');
     }
   }
 
-  private capitalizeFirstLetter(str: string): string {
+  capitalizeFirstLetter(str: string): string {
     if (!str) return str; // Kiểm tra nếu chuỗi rỗng hoặc null
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   }
 
-  private async getOrCreateGenres(genreNames: string[]) {
+  async getOrCreateGenres(genreNames: string[]) {
     const existingGenres = await this.genresModel.find({
       name: { $in: genreNames },
     });
@@ -81,118 +84,32 @@ export class CrawlService {
   // #region Comic
   async crawlComic(crawlComicDto: CrawlComicDto) {
     try {
-      const listComicData = await Promise.all(
-        crawlComicDto.urls.map(async (url) => {
-          try {
-            const { data } = await crawlApi.get(url);
-            if (!data) throw new Error('Invalid URL');
-
-            const $ = cheerio.load(data);
-            const comicData: CrawlComicData = {
-              name: $(crawlComicDto.name).text().trim(),
-              originName: [$(crawlComicDto.originName).text().trim()],
-              introduce: $(crawlComicDto.introduce).text().trim(),
-              thumbnail: $(crawlComicDto.thumbnail).attr('src') || '',
-              status:
-                $(crawlComicDto.thumbnail).text().toLowerCase() === 'hoàn thành'
-                  ? Status.Done
-                  : Status.OnGoing,
-              authors: $(crawlComicDto.authors)
-                .map((_, el) => ({ name: $(el).text().trim() }))
-                .get(),
-              genres: $(crawlComicDto.genres)
-                .map((_, el) => ({ name: $(el).text().trim() }))
-                .get(),
-              chapters: $(crawlComicDto.chapters)
-                .map((_, el) => ({ name: $(el).text().trim(), link: $(el).attr('href') }))
-                .get()
-                .reverse(),
-            };
-
-            return comicData;
-          } catch (error) {
-            this.logger.error(`Failed to crawl comic from URL: ${url}`, error.stack);
-            return null; // Return null if there's an error
-          }
-        }),
-      );
-
-      const filteredComicData = listComicData.filter((data) => data !== null);
-      const result = await this.saveListComic(filteredComicData, crawlComicDto.chapterImages);
-      return result;
+      const [genresList, rootFolder] = await Promise.all([
+        this.genresModel.find({}),
+        this.getOrCreateFolderRoot(),
+      ]);
+      for (const url of crawlComicDto.urls) {
+        await this.comicQueue.add(
+          'crawl-comic',
+          {
+            url,
+            crawlComicDto,
+            genresList: genresList,
+            rootFolderId: rootFolder._id,
+          },
+          {
+            removeOnComplete: true,
+            removeOnFail: true,
+          },
+        );
+      }
     } catch (error) {
       this.logger.error('Failed to crawl comics', error.stack);
       throw new Error('Failed to crawl comics');
     }
   }
 
-  private async saveListComic(
-    listComicData: CrawlComicData[],
-    chapterImagesQuerySelector?: string,
-  ) {
-    try {
-      const comicResult = [];
-      const [genresList, rootFolder] = await Promise.all([
-        this.genresModel.find({}),
-        this.getOrCreateFolderRoot(),
-      ]);
-
-      for (const comic of listComicData) {
-        // Check for existing comic
-        const existingComic = await this.comicModel.findOne({ name: comic.name });
-        if (existingComic) continue;
-
-        // Create or find authors
-        const authorsIds = await this.getOrCreateAuthors(comic.authors);
-
-        // Create or update folder
-        const folderDoc = await this.folderModel.findOneAndUpdate(
-          { folderName: comic.name },
-          { $setOnInsert: { folderName: comic.name, parentFolder: rootFolder._id } },
-          { upsert: true, new: true },
-        );
-
-        // Download and save thumbnail image
-        const imageMetadata = await this.downloadAndSaveImage(comic.thumbnail, folderDoc._id);
-        const thumbnailDoc = await this.mediaModel.create(imageMetadata);
-
-        // Create new comic
-        const newComic = await this.comicModel.create({
-          name: comic.name,
-          introduce: comic.introduce,
-          status: comic.status,
-          originName: comic.originName,
-          genres: genresList
-            .filter((genre) => comic.genres.some((g) => g.name === genre.name))
-            .map((genre) => new Types.ObjectId(genre._id)),
-          authors: authorsIds,
-          thumbnail: thumbnailDoc._id,
-        });
-
-        // Save chapters and their images
-        const chapters = [];
-        for (const chapter of comic.chapters) {
-          const chapterDoc = await this.saveListChapters(
-            chapterImagesQuerySelector,
-            [chapter], // Process one chapter at a time
-            newComic._id,
-            folderDoc._id,
-          );
-          chapters.push(...chapterDoc); // Flatten array if necessary
-        }
-
-        // Add new comic with its chapters to result
-        comicResult.push({ ...newComic.toJSON(), chapters });
-      }
-
-      return comicResult;
-    } catch (error) {
-      this.logger.error('Failed to save comics', error.stack);
-      throw new Error('Failed to save comics');
-    }
-  }
-
-  private async getOrCreateAuthors(authors: CrawlAuthor[]): Promise<Types.ObjectId[]> {
+  async getOrCreateAuthors(authors: CrawlAuthor[]): Promise<Types.ObjectId[]> {
     const existingAuthors = await this.authorModel.find({
       name: { $in: authors.map((a) => a.name) },
     });
@@ -211,10 +128,7 @@ export class CrawlService {
     return existingAuthors.concat(createdAuthors).map((author) => author._id);
   }
 
-  private async downloadAndSaveImage(
-    imageUrl: string,
-    parentFolder?: Types.ObjectId | null,
-  ): Promise<any> {
+  async downloadAndSaveImage(imageUrl: string, parentFolder?: Types.ObjectId | null): Promise<any> {
     try {
       const res = await crawlApi.get(imageUrl, { responseType: 'arraybuffer' });
       const fileName = this.getFileNameFromUrl(imageUrl);
@@ -232,7 +146,7 @@ export class CrawlService {
         mimeType: res.headers['content-type'] || 'unknown',
         destination: 'public/uploads',
         size: res.data.length,
-        parentFolder: parentFolder || null,
+        parentFolder: parentFolder ? new Types.ObjectId(new Types.ObjectId(parentFolder)) : null,
       };
     } catch (error) {
       this.logger.error('Error downloading or saving the image', error.stack);
@@ -240,7 +154,7 @@ export class CrawlService {
     }
   }
 
-  private getFileNameFromUrl(url: string): string | null {
+  getFileNameFromUrl(url: string): string | null {
     const uniqueSuffix = randomUUID();
     const match = url.match(/\/([^\/\?]+)\.(jpg|png)(?:\?|$)/);
 
@@ -251,54 +165,7 @@ export class CrawlService {
     return null;
   }
 
-  async saveListChapters(
-    querySelector: string,
-    chapters: CrawlChapter[],
-    comicId: Types.ObjectId,
-    parentFolder?: Types.ObjectId | null,
-  ) {
-    try {
-      const result = [];
-
-      for (const chapter of chapters) {
-        const { data } = await crawlApi.get('https://truyenqqto.com' + chapter.link);
-        if (!data) throw new Error(`Failed to fetch data for chapter: ${chapter.name}`);
-
-        const $ = cheerio.load(data);
-        const images = $(querySelector)
-          .map((_, el) => $(el).attr('src'))
-          .get();
-
-        const folderDoc = await this.folderModel.create({
-          folderName: chapter.name,
-          parentFolder: parentFolder,
-        });
-
-        const mediaDocs = [];
-
-        for (const image of images) {
-          const img = await this.downloadAndSaveImage(image, folderDoc._id);
-          const mediaDoc = await this.mediaModel.create(img);
-          mediaDocs.push(mediaDoc);
-        }
-
-        const chapterDoc = await this.chapterModel.create({
-          name: chapter.name,
-          images: mediaDocs.map((doc) => doc._id),
-          comic: comicId,
-        });
-
-        result.push(chapterDoc.toJSON());
-      }
-
-      return result;
-    } catch (error) {
-      this.logger.error('Failed to save chapters', error.stack);
-      throw new Error('Failed to save chapters: ' + error.message);
-    }
-  }
-
-  private async getOrCreateFolderRoot() {
+  async getOrCreateFolderRoot() {
     const doc = await this.folderModel.findOne({ parentFolder: null });
     if (!doc) {
       return (await this.folderModel.create({ folderName: 'Root', parentFolder: null })).toJSON();

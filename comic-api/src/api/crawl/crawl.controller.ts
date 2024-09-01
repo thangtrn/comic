@@ -17,12 +17,14 @@ export class CrawlController {
 
   @Post('/genres')
   async crawlGenres(@Body() crawlGenresDto: CrawlGenresDto) {
-    return await this.crawlService.crawlGenres(crawlGenresDto);
+    await this.crawlService.crawlGenres(crawlGenresDto);
+    return 'Added crawl genres to the queue';
   }
 
   @Post('/comic')
   async crawlComic(@Body() crawlComicDto: CrawlComicDto) {
-    return await this.crawlService.crawlComic(crawlComicDto);
+    this.crawlService.crawlComic(crawlComicDto);
+    return 'Added crawl comics to the queue';
   }
 
   @Get('/reset')
