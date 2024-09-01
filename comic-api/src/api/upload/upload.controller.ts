@@ -27,13 +27,12 @@ import { DeleteFolderDto } from './dtos/delete-folder.dto';
 import { CreateFileDto } from './dtos/create-file.dto';
 import { UpdateFileDto } from './dtos/update-file.dto';
 import { QueryAssetsDto } from './dtos/query-assets.dto';
-import RouteCache from '~/shared/decorators/route-cache';
 
 @ApiTags('Upload')
 @Controller('/upload')
-// @ApiBearerAuth()
-// @UseGuards(JwtAuthGuard)
-// @Secured(Role.Admin)
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Secured(Role.Admin)
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
