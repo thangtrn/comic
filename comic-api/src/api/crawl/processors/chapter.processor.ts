@@ -11,7 +11,7 @@ import { CrawlService } from '../crawl.service';
 import { CrawlChapter } from '../types/crawl';
 import crawlApi from '../axios/crawl-api';
 
-@Processor('chapter-queue')
+@Processor('chapter-queue', { concurrency: 50 })
 export class ChapterProcessor extends WorkerHost {
   constructor(
     @InjectModel(Folder.name) private folderModel: Model<Folder>,

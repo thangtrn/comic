@@ -13,7 +13,7 @@ import crawlApi from '../axios/crawl-api';
 import Status from '~/api/comic/enums/status.enum';
 import { CrawlComicDto } from '../dtos/crawl.dto';
 
-@Processor('comic-queue', { concurrency: 5 })
+@Processor('comic-queue', { concurrency: 10 })
 export class ComicProcessor extends WorkerHost {
   constructor(
     @InjectModel(Comic.name) private comicModel: Model<Comic>,
