@@ -3,14 +3,14 @@ services:
       image: mongo
       container_name: comic-mongo
       ports:
-         - 27018:27017
+         - 27017:27017
       networks:
          - app-network
    redis:
       image: redis
       container_name: comic-redis
       ports:
-         - 6310:6379
+         - 6379:6379
       networks:
          - app-network
 networks:
