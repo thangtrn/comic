@@ -1,3 +1,4 @@
+import 'package:comic_mobile/components/space/spacing_row.dart';
 import 'package:comic_mobile/constants/app_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -21,10 +22,10 @@ class HomeHeader extends StatelessWidget {
                 fontSize: 26,
                 fontWeight: FontWeight.w500),
           ),
-          Row(
+          SpacingRow(
+            spacing: 4,
             children: [
               _iconButton(CupertinoIcons.bell, onTap: _onSearchPressed),
-              const SizedBox(width: 4),
               _iconButton(CupertinoIcons.search, onTap: _onSearchPressed),
             ],
           )

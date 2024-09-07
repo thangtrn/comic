@@ -1,13 +1,12 @@
 import 'package:comic_mobile/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/widgets.dart';
 
 final List<String> imgList = [
   'assets/images/banner-1.png',
-  'assets/images/banner-1.png',
-  'assets/images/banner-1.png',
-  'assets/images/banner-1.png',
+  'assets/images/banner-2.jpg',
+  'assets/images/banner-2.jpg',
+  'assets/images/banner-2.jpg',
 ];
 
 class HomeCarousel extends StatefulWidget {
@@ -51,7 +50,7 @@ class _HomeCarouselState extends State<HomeCarousel> {
                 final double width = MediaQuery.of(context).size.width;
                 return Container(
                   width: width,
-                  margin: const EdgeInsets.symmetric(horizontal: 12),
+                  margin: const EdgeInsets.symmetric(horizontal: 14),
                   child: Material(
                     borderRadius: BorderRadius.circular(12),
                     clipBehavior: Clip.antiAlias,
@@ -59,6 +58,7 @@ class _HomeCarouselState extends State<HomeCarousel> {
                       image: AssetImage(image),
                       fit: BoxFit.cover,
                       child: InkWell(
+                        splashFactory: InkSparkle.splashFactory,
                         onTap: _onItemTab,
                       ),
                     ),
@@ -81,23 +81,17 @@ class _HomeCarouselState extends State<HomeCarousel> {
                   _controller.animateToPage(index);
                 },
                 child: AnimatedContainer(
-                  height: 10,
-                  width: currentIndex == index ? 20 : 10,
+                  height: 8,
+                  width: currentIndex == index ? 16 : 8,
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.ease,
                   decoration: BoxDecoration(
-                      color: currentIndex == index
-                          ? AppColors.primary
-                          : AppColors.subtext,
-                      borderRadius: BorderRadius.circular(30),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.white,
-                          spreadRadius: 1,
-                          blurRadius: 3,
-                        )
-                      ]),
+                    color: currentIndex == index
+                        ? AppColors.primary
+                        : AppColors.subtext,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
               );
             }).toList(),
