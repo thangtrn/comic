@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-color: #ee0032;
+  --secondary-color: #3a3b3c;
+
+  --text-color: #333333;
+  --text-text-foreground-color: #ffff;
+  --subtext-color: #9d9d9d;
+
+  --background-color: #ffffff;
+
+  --accent-color: #f4f4f5; /* hover color */
+
+  /* other */
+  --scroll-bg: #00000026;
+
+  --header-shadow: rgba(0, 0, 0, 0.15);
+
+  --shadow-card-color: rgba(0, 0, 0, 0.24);
+
+  --loading-grey: #ededed;
+}
+@media (prefers-color-scheme: dark) {
+}
+
+@layer base {
+  html ::-webkit-scrollbar {
+    border-radius: 0;
+    height: 8px;
+    width: 8px;
+  }
+
+  html ::-webkit-scrollbar-thumb {
+    background-color: var(--scroll-bg);
+    border-radius: 4px;
+  }
+
+  html ::-webkit-scrollbar-track {
+    background-color: transparent;
+    border-radius: 0;
+  }
+  :root {
+    --radius: 0.5rem;
+  }
+}
+
+/* flex box basic */
+@layer utilities {
+  .f-center,
+  .fx-center,
+  .fy-center {
+    @apply flex;
+  }
+  .f-center {
+    @apply items-center justify-center;
+  }
+  .fx-center {
+    @apply justify-center;
+  }
+  .fy-center {
+    @apply items-center;
+  }
+  .transition-smooth {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card-color) 0px 3px 8px;
+  }
+}
+
+/* image basic */
+@layer components {
+  .image-cover,
+  .image-contain {
+    @apply inline-block size-full overflow-hidden;
+  }
+  .image-cover > img {
+    @apply size-full object-cover;
+  }
+  .image-contain > img {
+    @apply size-full object-contain;
+  }
+}
+
+/* skeleton */
+@layer utilities {
+  .skeleton {
+    background-color: var(--loading-grey);
+    background: linear-gradient(
+        100deg,
+        rgba(255, 255, 255, 0) 40%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0) 60%
+      )
+      var(--loading-grey);
+    background-size: 200% 100%;
+    background-position-x: 180%;
+    animation: 1s skeleton ease-in-out infinite;
+  }
+
+  @keyframes skeleton {
+    to {
+      background-position-x: -20%;
+    }
+  }
+}

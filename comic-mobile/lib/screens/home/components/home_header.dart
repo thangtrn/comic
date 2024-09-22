@@ -10,7 +10,7 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -18,9 +18,10 @@ class HomeHeader extends StatelessWidget {
           const Text(
             'Đề xuất',
             style: TextStyle(
-                color: AppColors.text,
-                fontSize: 26,
-                fontWeight: FontWeight.w500),
+              color: AppColors.text,
+              fontSize: 26,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           SpacingRow(
             spacing: 4,
